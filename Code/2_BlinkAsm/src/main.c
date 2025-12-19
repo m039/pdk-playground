@@ -2,21 +2,11 @@
 #include "auto_sysclock.h"
 #include "delay.h"
 
-#define LED_BIT             4
 
-#define turnLedOn()         PA &= ~(1 << LED_BIT)
-#define turnLedOff()        PA |= (1 << LED_BIT)
+extern void main_asm();
 
-void main_() {
-  PAC |= (1 << LED_BIT);
-  turnLedOff();
-
-  while (1) {
-    turnLedOn();
-    _delay_ms(1000);
-    turnLedOff();
-    _delay_ms(1000);
-  }
+void main() {
+  main_asm();
 }
 
 // Startup code - Setup/calibrate system clock
