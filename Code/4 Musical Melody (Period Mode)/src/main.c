@@ -1,7 +1,7 @@
 #include <pdk/device.h>
 #include "auto_sysclock.h"
 #include "delay.h"
-#include "melodies/imperial_march.h"
+#include "melodies/russian_anthem.h"
 
 #define PWM_MAX               255
 
