@@ -2,44 +2,76 @@
 #include "auto_sysclock.h"
 #include "delay.h"
 
-#define NOTE_C4  262
-#define NOTE_D4  294
-#define NOTE_E4  330
-#define NOTE_F4  349
-#define NOTE_G4  392
-#define NOTE_A4  440
-#define NOTE_B4  494
-#define NOTE_C5  523
-#define REST     0
+#define Nc    261
+#define Nd    294
+#define Ne    329
+#define Nf    349
+#define Ng    391
+#define NgS   415 // G Sharp
+#define Na    440
+#define NaS   455 // A Sharp
+#define Nb    466
+#define NcH   523 // C High
+#define NcSH  554 // C Sharp High
+#define NdH   587 // D High
+#define NdSH  622 // D Sharp High
+#define NeH   659 // E High
+#define NfH   698 // F High
+#define NfSH  740 // F Sharp High
+#define NgH   784 // G High
+#define NgSH  830 // G Sharp High
+#define NaH   880 // A High
 
-// Simple melody: "Twinkle Twinkle Little Star"
+#define REST 0
+
+#define D650 LOOP_CTR_32(MS_TO_CYCLES(650))
+#define D500 LOOP_CTR_32(MS_TO_CYCLES(500))
+#define D375 LOOP_CTR_32(MS_TO_CYCLES(375))
+#define D350 LOOP_CTR_32(MS_TO_CYCLES(350))
+#define D325 LOOP_CTR_32(MS_TO_CYCLES(325))
+#define D300 LOOP_CTR_32(MS_TO_CYCLES(300))
+#define D250 LOOP_CTR_32(MS_TO_CYCLES(250))
+#define D175 LOOP_CTR_32(MS_TO_CYCLES(175))
+#define D150 LOOP_CTR_32(MS_TO_CYCLES(150))
+#define D125 LOOP_CTR_32(MS_TO_CYCLES(125))
+
+// Melody taken from https://medium.com/@bigmaitz/using-arduino-to-play-star-wars-imperial-march-tune-47f75a6e1e43
+
 const int melody[] = {
-  NOTE_C4, NOTE_C4, NOTE_G4, NOTE_G4, NOTE_A4, NOTE_A4, NOTE_G4, REST,
-  NOTE_F4, NOTE_F4, NOTE_E4, NOTE_E4, NOTE_D4, NOTE_D4, NOTE_C4, REST
+  Na, Na, Na, Nf, NcH, Na, Nf, NcH, Na, REST, // first
+  NeH, NeH, NeH, NfH, NcH, NgS, Nf, NcH, Na, REST,
+
+  NaH, Na, Na, NaH, NgSH, NgH, NfSH, NfH, NfSH, REST, // second
+  NaS, NdSH, NdH, NcSH, NcH, Nb, NcH, REST,
+
+  Nf, NgS, Nf, Na, NcH, Na, NcH, NeH, REST, // variant 1
+
+  NaH, Na, Na, NaH, NgSH, NgH, NfSH, NfH, NfSH, REST, // second
+  NaS, NdSH, NdH, NcSH, NcH, Nb, NcH, REST,
+
+  Nf, NgS, Nf, NcH, Na, Nf, NcH, Na, REST // variant 2
 };
 
-#define D4 LOOP_CTR_32(MS_TO_CYCLES(1000 / 4))
-#define D2 LOOP_CTR_32(MS_TO_CYCLES(1000 / 2))
-
-#define DP4 (D4 * 1.3)
-#define DP2 (D2 * 1.3)
-
-// Note durations: 4 = quarter note, 8 = eighth note, etc.
 const uint32_t noteDurations[] = {
-  D4, D4, D4, D4, D4, D4, D2, D4,
-  D4, D4, D4, D4, D4, D4, D2, D4
-};
+  D500, D500, D500, D350, D150, D500, D350, D150, D650, D500, 
+  D500, D500, D500, D350, D150, D500, D350, D150, D650, D500,
 
-const uint32_t notePause[] = {
-  DP4, DP4, DP4, DP4, DP4, DP4, DP2, DP4,
-  DP4, DP4, DP4, DP4, DP4, DP4, DP2, DP4
+  D500, D300, D150, D500, D325, D175, D125, D125, D250, D500,
+  D250, D500, D325, D175, D125, D125, D250, D500,
+
+  D250, D500, D350, D125, D500, D375, D125, D650, D500,
+
+  D500, D300, D150, D500, D325, D175, D125, D125, D250, D500,
+  D250, D500, D325, D175, D125, D125, D250, D500,
+
+  D250, D500, D350, D125, D500, D375, D125, D650, D500
 };
 
 #define PWM_MAX               255
 
 #define BUZZER_BIT 3 // PA3 (TM2PWM)
 
-#define TONE_COMPLEX 1
+#define TONE_COMPLEX 0
 
 void tone(long frequency) {
 #if TONE_COMPLEX
@@ -79,24 +111,24 @@ void tone(long frequency) {
     }
   }
 #else 
-  #define TONE_FREQ (16000000 / (2 * 64 * 16))
+  #define TONE_FREQ (16000000 / (2 * 64 * 2))
 
   if (frequency <= 0) {
     TM2B = 0;
   } else {
-    TM2S = 3 << 5 | 15;
+    TM2S = 3 << 5 | 1;
     TM2B = TONE_FREQ / frequency  - 1;
   }
 #endif
 }
 
 void playMelody() {
-  for (int thisNote = 0; thisNote < 16; thisNote++) {   
+  for (int thisNote = 0; thisNote < 74; thisNote++) {   
     tone(melody[thisNote]);
     _delay_loop_32(noteDurations[thisNote]);
     
     tone(0);
-    _delay_loop_32(notePause[thisNote]);
+    _delay_ms(40);
   }
 }
 

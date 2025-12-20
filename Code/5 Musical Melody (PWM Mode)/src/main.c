@@ -23,7 +23,6 @@
 #define NOTE_C5  (2 << 5 | 7)   // 558Hz
 #define REST     0
 
-// Simple melody: "Twinkle Twinkle Little Star"
 const uint8_t melody[] = {
   NOTE_C4, NOTE_C4, NOTE_G4, NOTE_G4, NOTE_A4, NOTE_A4, NOTE_G4, REST,
   NOTE_F4, NOTE_F4, NOTE_E4, NOTE_E4, NOTE_D4, NOTE_D4, NOTE_C4, REST
