@@ -2,18 +2,29 @@
 #include "auto_sysclock.h"
 #include "delay.h"
 
-#define NOTE_C4  262
-#define NOTE_D4  294
-#define NOTE_E4  330
-#define NOTE_F4  349
-#define NOTE_G4  392
-#define NOTE_A4  440
-#define NOTE_B4  494
-#define NOTE_C5  523
+// Original notes
+// #define NOTE_C4  262
+// #define NOTE_D4  294
+// #define NOTE_E4  330
+// #define NOTE_F4  349
+// #define NOTE_G4  392
+// #define NOTE_A4  440
+// #define NOTE_B4  494
+// #define NOTE_C5  523
+// #define REST     0
+
+#define NOTE_C4  (2 << 5 | 15)  // 260HZ
+#define NOTE_D4  (2 << 5 | 13)  // 300HZ
+#define NOTE_E4  (2 << 5 | 12)  // 325Hz
+#define NOTE_F4  (2 << 5 | 11)  // 355Hz
+#define NOTE_G4  (2 << 5 | 10)  // 390Hz
+#define NOTE_A4  (2 << 5 | 9)   // 434Hz
+#define NOTE_B4  (2 << 5 | 8)   // 488Hz
+#define NOTE_C5  (2 << 5 | 7)   // 558Hz
 #define REST     0
 
 // Simple melody: "Twinkle Twinkle Little Star"
-const int melody[] = {
+const uint8_t melody[] = {
   NOTE_C4, NOTE_C4, NOTE_G4, NOTE_G4, NOTE_A4, NOTE_A4, NOTE_G4, REST,
   NOTE_F4, NOTE_F4, NOTE_E4, NOTE_E4, NOTE_D4, NOTE_D4, NOTE_C4, REST
 };
@@ -39,14 +50,16 @@ const uint32_t notePause[] = {
 
 #define BUZZER_BIT 3 // PA3 (TM2PWM)
 
-#define TONE_FREQ (16000000 / (2 * 64 * 16))
+#define TONE_FREQ (16000000 / 64)
+#define MAX_SCALE (32)
 
-void tone(long frequency) {
-  if (frequency <= 0) {
-    TM2B = 0;
+void tone(uint8_t frequency) {
+  if (frequency == 0) {
+    TM2C = 0;
   } else {
-    TM2S = 3 << 5 | 15;
-    TM2B = TONE_FREQ / frequency  - 1;
+    TM2C = (uint8_t)(TM2C_MODE_PWM | TM2C_OUT_PA3 | TM2C_CLK_IHRC);
+    TM2S = frequency;
+    TM2B = 0x7f;
   }
 }
 
@@ -62,15 +75,9 @@ void playMelody() {
 
 void main() {
   PAC |= (1 << BUZZER_BIT);
- 
-  TM2B = 0;
-  TM2C = (uint8_t)(TM2C_INVERT_OUT | TM2C_MODE_PERIOD | TM2C_OUT_PA3 | TM2C_CLK_IHRC);
-  TM2S = 0x0;
-
-  tone(NOTE_C4);
 
   while (1) {
-     playMelody();
+    playMelody();
 
     _delay_ms(4000);
   }
