@@ -4,8 +4,6 @@
     .area DATA
 	.area OSEG (OVR,DATA)
 
-    .globl _main_asm
-
     .area RSEG (ABS)
     .org 0x0000
     __flag	=	0x0000
@@ -74,13 +72,17 @@
 	.area GSINIT
 	.area GSFINAL
 	.area GSINIT
-	.area PREG (ABS)
+	.area	PREG (ABS)
+	.area	HEADER (ABS)
+	.org 0x0000
+	call	__sdcc_external_startup
+	goto	_main
 	.area GSINIT
 	.area GSFINAL
 	.area HOME
 	.area HOME
 	.area CODE
-_main_asm:
+_main:
     ; Set 4 pin to output
     set1.io __pac, #4
 
@@ -114,7 +116,7 @@ _loop:
     goto _loop
 
 _delay_loop_32:
-	_delay_loop_32_1:
+	1$:
 	dec	_delay_loop_32_PARM+0
 	subc _delay_loop_32_PARM+1
 	subc _delay_loop_32_PARM+2
@@ -124,9 +126,27 @@ _delay_loop_32:
 	or a, _delay_loop_32_PARM+2
 	or a, _delay_loop_32_PARM+3
 	t1sn.io	f, z
-	goto _delay_loop_32_1
+	goto 1$
 	ret
 
+__sdcc_external_startup:
+;	src\main.c: 18: AUTO_INIT_SYSCLOCK();
+	mov	a, #0x1c
+	mov.io	__clkmd, a
+;	src\main.c: 23: AUTO_CALIBRATE_SYSCLOCK(TARGET_VDD_MV);
+	and	a, #'R'                       
+	and	a, #'C'                       
+	and	a, #(1)            
+	and	a, #((1000000))     
+	and	a, #((1000000)>>8)  
+	and	a, #((1000000)>>16) 
+	and	a, #((1000000)>>24) 
+	and	a, #((4000))     
+	and	a, #((4000)>>8)  
+	and	a, #(0x0b)             
+;	src\main.c: 25: return 0;   // Return 0 to inform SDCC to continue with normal initialization.
+;	src\main.c: 26: }
+	ret	#0x00
 	.area CODE
 	.area CONST
 	.area CABS (ABS)
