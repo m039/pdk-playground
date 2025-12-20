@@ -4,6 +4,9 @@
 #include <stdint.h>
 #include "delay.h"
 
+#define TONE_FREQ (16000000 / (2 * 64 * 2))
+#define F(x) (uint8_t)(TONE_FREQ / x - 1)
+
 #define REST  0
 #define Nd    1
 #define Ne    2
@@ -25,27 +28,27 @@
 #define NaH   18
 #define Nc    10
 
-const int16_t melody_tones[] = {
+const uint8_t melody_tones[] = {
   0,
-  294, // Nd
-  329, // Ne
-  349, // Nf
-  391, // Ng
-  415, // NgS // G Sharp
-  440, // Na
-  455, // NaS // A Sharp
-  466, // Nb
-  523, // NcH // C High
-  554, // NcSH // C Sharp High
-  587, // NdH // D High
-  622, // NdSH // D Sharp High
-  659, // NeH // E High
-  698, // NfH // F High
-  740, // NfSH // F Sharp High
-  784, // NgH // G High
-  830, // NgSH // G Sharp High
-  880, // NaH // A High
-  261, // Nc
+  F(294), // Nd
+  F(329), // Ne
+  F(349), // Nf
+  F(391), // Ng
+  F(415), // NgS // G Sharp
+  F(440), // Na
+  F(455), // NaS // A Sharp
+  F(466), // Nb
+  F(523), // NcH // C High
+  F(554), // NcSH // C Sharp High
+  F(587), // NdH // D High
+  F(622), // NdSH // D Sharp High
+  F(659), // NeH // E High
+  F(698), // NfH // F High
+  F(740), // NfSH // F Sharp High
+  F(784), // NgH // G High
+  F(830), // NgSH // G Sharp High
+  F(880), // NaH // A High
+  F(261), // Nc
 };
 
 #define D650 0
@@ -96,6 +99,17 @@ const melody_data melody[] = {
 
 #define MELODY_SIZE sizeof(melody) / sizeof(melody_data)
 #define MELODY_TONE(x) melody_tones[melody[x].t]
+#define MELODY_NO_TONE(x) LOOP_CTR_32(MS_TO_CYCLES(25))
 #define MELODY_DURATION(x) melody_durations[melody[x].d]
+
+void tone(uint8_t frequency)
+{
+  if (frequency <= 0) {
+    TM2B = 0;
+  } else {
+    TM2S = 3 << 5 | 1;
+    TM2B = frequency;
+  }
+}
 
 #endif
