@@ -3,9 +3,6 @@
 #include "delay.h"
 #include "melodies/russian_anthem.h"
 
-
-#define PWM_MAX               255
-
 #define BUZZER_BIT 3 // PA3 (TM2PWM)
 
 #define BUTTON_BIT 4 // PA4
@@ -13,9 +10,6 @@
 #define isButtonActive()    !(PA & (1 << BUTTON_BIT))
 
 #define sleep() __asm stopsys __endasm;
-
-uint8_t buttonPressed = 0;
-
 
 void playMelody() {
   for (int thisNote = 0; thisNote < MELODY_SIZE; thisNote++) {   
