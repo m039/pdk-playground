@@ -1,7 +1,7 @@
 #include <pdk/device.h>
 #include "auto_sysclock.h"
 #include "delay.h"
-#include "melodies/komarovo.h"
+#include "melodies/wake_up_and_sing.h"
 
 #define BUZZER_BIT 3 // PA3 (TM2PWM)
 
@@ -17,7 +17,7 @@ void playMelody() {
     _delay_loop_32(MELODY_DURATION(thisNote));
     
     tone(0);
-    _delay_loop_32(MELODY_NO_TONE(thisNote));
+    _delay_loop_32(MELODY_NO_TONE_DURATION(thisNote));
 
     if (isButtonActive()) {
       break;

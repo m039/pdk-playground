@@ -99,7 +99,7 @@ const melody_data melody[] = {
 
 #define MELODY_SIZE sizeof(melody) / sizeof(melody_data)
 #define MELODY_TONE(x) melody_tones[melody[x].t]
-#define MELODY_NO_TONE(x) LOOP_CTR_32(MS_TO_CYCLES(25))
+#define MELODY_NO_TONE_DURATION(x) LOOP_CTR_32(MS_TO_CYCLES(25))
 #define MELODY_DURATION(x) melody_durations[melody[x].d]
 
 void tone(uint8_t frequency)

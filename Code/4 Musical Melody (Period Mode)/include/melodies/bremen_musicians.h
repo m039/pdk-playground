@@ -4,4 +4,118 @@
 // https://www.youtube.com/watch?v=NF1nwGEf7aY&list=RDACYB1XNs04w&index=8
 // https://midifind.com/files/d/distemper/distemper_pervaya_pesnya_razboynikov/858-1-0-24537
 
+#include <stdint.h>
+#include "delay.h"
+
+#define NOTE_A4 1
+#define NOTE_Gb4 2
+#define NOTE_F4 3
+#define NOTE_E4 4
+#define NOTE_D4 5
+#define NOTE_G4 6
+#define NOTE_C4 7
+#define NOTE_Ab4 8
+
+#define TONE_FREQ (16000000 / (2 * 64 * 3))
+#define F(x) (uint8_t)(TONE_FREQ / x - 1)
+const uint8_t melody_tones[] = {
+  0,
+  F(440), // A4
+  F(415), // Gb4
+  F(349), // F4
+  F(330), // E4
+  F(294), // D4
+  F(392), // G4
+  F(262), // C4
+  F(466), // Ab4
+};
+
+#define DURATION_0 0
+#define DURATION_500 1
+#define DURATION_375 2
+#define DURATION_250 3
+#define DURATION_125 4
+
+const uint32_t melody_durations[] = {
+  LOOP_CTR_32(MS_TO_CYCLES(0)), // 0
+  LOOP_CTR_32(MS_TO_CYCLES(500)), // 1
+  LOOP_CTR_32(MS_TO_CYCLES(375)), // 2
+  LOOP_CTR_32(MS_TO_CYCLES(250)), // 3
+  LOOP_CTR_32(MS_TO_CYCLES(125)), // 4
+};
+
+typedef struct {
+    uint8_t t;
+    uint8_t d;
+    uint8_t nd;
+} melody_data;
+
+const melody_data melody[50] = {
+  {NOTE_A4, DURATION_375, DURATION_0},
+  {NOTE_Gb4, DURATION_125, DURATION_0},
+  {NOTE_A4, DURATION_375, DURATION_0},
+  {NOTE_Gb4, DURATION_125, DURATION_0},
+  {NOTE_A4, DURATION_250, DURATION_0},
+  {NOTE_F4, DURATION_250, DURATION_0},
+  {NOTE_E4, DURATION_250, DURATION_0},
+  {NOTE_D4, DURATION_250, DURATION_250},
+  {NOTE_G4, DURATION_250, DURATION_250},
+  {NOTE_D4, DURATION_250, DURATION_0},
+  {NOTE_G4, DURATION_125, DURATION_0},
+  {NOTE_G4, DURATION_125, DURATION_0},
+  {NOTE_G4, DURATION_125, DURATION_0},
+  {NOTE_A4, DURATION_125, DURATION_0},
+  {NOTE_G4, DURATION_250, DURATION_500},
+  {NOTE_G4, DURATION_250, DURATION_250},
+  {NOTE_C4, DURATION_250, DURATION_0},
+  {NOTE_G4, DURATION_250, DURATION_0},
+  {NOTE_Ab4, DURATION_250, DURATION_0},
+  {NOTE_A4, DURATION_250, DURATION_0},
+  {NOTE_G4, DURATION_250, DURATION_0},
+  {NOTE_F4, DURATION_250, DURATION_0},
+  {NOTE_F4, DURATION_250, DURATION_250},
+  {NOTE_C4, DURATION_250, DURATION_0},
+  {NOTE_F4, DURATION_125, DURATION_0},
+  {NOTE_F4, DURATION_125, DURATION_0},
+  {NOTE_F4, DURATION_125, DURATION_0},
+  {NOTE_G4, DURATION_125, DURATION_0},
+  {NOTE_F4, DURATION_500, DURATION_0},
+  {NOTE_E4, DURATION_250, DURATION_0},
+  {NOTE_E4, DURATION_250, DURATION_0},
+  {NOTE_Ab4, DURATION_500, DURATION_0},
+  {NOTE_A4, DURATION_250, DURATION_0},
+  {NOTE_A4, DURATION_250, DURATION_0},
+  {NOTE_E4, DURATION_500, DURATION_250},
+  {NOTE_F4, DURATION_250, DURATION_250},
+  {NOTE_E4, DURATION_250, DURATION_0},
+  {NOTE_F4, DURATION_125, DURATION_0},
+  {NOTE_F4, DURATION_125, DURATION_0},
+  {NOTE_F4, DURATION_125, DURATION_0},
+  {NOTE_G4, DURATION_125, DURATION_0},
+  {NOTE_F4, DURATION_500, DURATION_0},
+  {NOTE_E4, DURATION_250, DURATION_0},
+  {NOTE_E4, DURATION_250, DURATION_0},
+  {NOTE_Ab4, DURATION_500, DURATION_0},
+  {NOTE_A4, DURATION_250, DURATION_0},
+  {NOTE_A4, DURATION_250, DURATION_0},
+  {NOTE_A4, DURATION_500, DURATION_0},
+  {NOTE_D4, DURATION_125, DURATION_125},
+  {NOTE_D4, DURATION_375, DURATION_0},
+};
+
+#define MELODY_SIZE sizeof(melody) / sizeof(melody_data)
+#define MELODY_TONE(x) melody_tones[melody[x].t]
+#define MELODY_NO_TONE_DURATION(x) melody_durations[melody[x].nd]
+#define MELODY_DURATION(x) melody_durations[melody[x].d]
+
+void tone(uint8_t frequency)
+{
+  if (frequency <= 0) {
+    TM2B = 0;
+  } else {
+    TM2S = 3 << 5 | 2;
+    TM2B = frequency;
+  }
+}
+
 #endif
