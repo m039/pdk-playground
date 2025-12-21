@@ -7,7 +7,7 @@
 #include <stdint.h>
 #include "delay.h"
 
-#define TONE_FREQ (16000000 / (2 * 64 * 3))
+#define TONE_FREQ (16000000 / (2 * 64 * 12))
 #define F(x) (uint8_t)(TONE_FREQ / x - 1)
 
 #define NOTE_A4 F(440)
@@ -24,145 +24,154 @@
 #define NOTE_Cb5 F(554)
 
 #define DURATION_0 0
-#define DURATION_450 1
-#define DURATION_100 2
-#define DURATION_200 3
-#define DURATION_300 4
-#define DURATION_1100 5
-#define DURATION_400 6
-#define DURATION_50 7
-#define DURATION_850 8
-#define DURATION_500 9
-#define DURATION_150 10
-#define DURATION_250 11
-#define DURATION_350 12
+#define DURATION_481 1
+#define DURATION_259 2
+#define DURATION_37 3
+#define DURATION_296 4
+#define DURATION_74 5
+#define DURATION_333 6
+#define DURATION_111 7
+#define DURATION_1073 8
+#define DURATION_370 9
+#define DURATION_851 10
+#define DURATION_148 11
+#define DURATION_1110 12
+#define DURATION_407 13
+#define DURATION_185 14
+#define DURATION_444 15
+#define DURATION_222 16
 
 const uint32_t melody_durations[] = {
   LOOP_CTR_32(MS_TO_CYCLES(0)), // 0
-  LOOP_CTR_32(MS_TO_CYCLES(450)), // 1
-  LOOP_CTR_32(MS_TO_CYCLES(100)), // 2
-  LOOP_CTR_32(MS_TO_CYCLES(200)), // 3
-  LOOP_CTR_32(MS_TO_CYCLES(300)), // 4
-  LOOP_CTR_32(MS_TO_CYCLES(1100)), // 5
-  LOOP_CTR_32(MS_TO_CYCLES(400)), // 6
-  LOOP_CTR_32(MS_TO_CYCLES(50)), // 7
-  LOOP_CTR_32(MS_TO_CYCLES(850)), // 8
-  LOOP_CTR_32(MS_TO_CYCLES(500)), // 9
-  LOOP_CTR_32(MS_TO_CYCLES(150)), // 10
-  LOOP_CTR_32(MS_TO_CYCLES(250)), // 11
-  LOOP_CTR_32(MS_TO_CYCLES(350)), // 12
+  LOOP_CTR_32(MS_TO_CYCLES(483)), // 1
+  LOOP_CTR_32(MS_TO_CYCLES(250)), // 2
+  LOOP_CTR_32(MS_TO_CYCLES(33)), // 3
+  LOOP_CTR_32(MS_TO_CYCLES(313)), // 4
+  LOOP_CTR_32(MS_TO_CYCLES(79)), // 5
+  LOOP_CTR_32(MS_TO_CYCLES(337)), // 6
+  LOOP_CTR_32(MS_TO_CYCLES(129)), // 7
+  LOOP_CTR_32(MS_TO_CYCLES(1079)), // 8
+  LOOP_CTR_32(MS_TO_CYCLES(354)), // 9
+  LOOP_CTR_32(MS_TO_CYCLES(846)), // 10
+  LOOP_CTR_32(MS_TO_CYCLES(138)), // 11
+  LOOP_CTR_32(MS_TO_CYCLES(1117)), // 12
+  LOOP_CTR_32(MS_TO_CYCLES(421)), // 13
+  LOOP_CTR_32(MS_TO_CYCLES(175)), // 14
+  LOOP_CTR_32(MS_TO_CYCLES(458)), // 15
+  LOOP_CTR_32(MS_TO_CYCLES(217)), // 16
 };
 
 typedef uint16_t melody_data;
 
 const melody_data melody[92] = {
-  (uint16_t)((NOTE_A4 << 8) | (DURATION_50 << 4) | DURATION_50),
-  (uint16_t)((NOTE_A4 << 8) | (DURATION_50 << 4) | DURATION_50),
-  (uint16_t)((NOTE_A4 << 8) | (DURATION_50 << 4) | DURATION_200),
-  (uint16_t)((NOTE_A4 << 8) | (DURATION_150 << 4) | DURATION_100),
-  (uint16_t)((NOTE_Ab4 << 8) | (DURATION_50 << 4) | DURATION_200),
-  (uint16_t)((NOTE_A4 << 8) | (DURATION_50 << 4) | DURATION_100),
-  (uint16_t)((NOTE_C5 << 8) | (DURATION_50 << 4) | DURATION_300),
-  (uint16_t)((NOTE_Ab4 << 8) | (DURATION_350 << 4) | DURATION_150),
-  (uint16_t)((NOTE_Ab4 << 8) | (DURATION_50 << 4) | DURATION_50),
-  (uint16_t)((NOTE_A4 << 8) | (DURATION_50 << 4) | DURATION_100),
-  (uint16_t)((NOTE_G4 << 8) | (DURATION_50 << 4) | DURATION_200),
-  (uint16_t)((NOTE_G4 << 8) | (DURATION_150 << 4) | DURATION_100),
-  (uint16_t)((NOTE_F4 << 8) | (DURATION_50 << 4) | DURATION_200),
-  (uint16_t)((NOTE_G4 << 8) | (DURATION_50 << 4) | DURATION_100),
-  (uint16_t)((NOTE_Ab4 << 8) | (DURATION_50 << 4) | DURATION_300),
-  (uint16_t)((NOTE_A4 << 8) | (DURATION_350 << 4) | DURATION_150),
-  (uint16_t)((NOTE_A4 << 8) | (DURATION_50 << 4) | DURATION_50),
-  (uint16_t)((NOTE_A4 << 8) | (DURATION_50 << 4) | DURATION_50),
-  (uint16_t)((NOTE_A4 << 8) | (DURATION_100 << 4) | DURATION_300),
-  (uint16_t)((NOTE_A4 << 8) | (DURATION_100 << 4) | DURATION_50),
-  (uint16_t)((NOTE_Ab4 << 8) | (DURATION_100 << 4) | DURATION_150),
-  (uint16_t)((NOTE_A4 << 8) | (DURATION_100 << 4) | DURATION_150),
-  (uint16_t)((NOTE_C5 << 8) | (DURATION_50 << 4) | DURATION_200),
-  (uint16_t)((NOTE_Ab4 << 8) | (DURATION_350 << 4) | DURATION_100),
-  (uint16_t)((NOTE_A4 << 8) | (DURATION_50 << 4) | DURATION_50),
-  (uint16_t)((NOTE_Ab4 << 8) | (DURATION_50 << 4) | DURATION_50),
-  (uint16_t)((NOTE_A4 << 8) | (DURATION_100 << 4) | DURATION_300),
-  (uint16_t)((NOTE_G4 << 8) | (DURATION_100 << 4) | DURATION_50),
-  (uint16_t)((NOTE_G4 << 8) | (DURATION_50 << 4) | DURATION_150),
-  (uint16_t)((NOTE_D5 << 8) | (DURATION_350 << 4) | DURATION_400),
-  (uint16_t)((NOTE_A4 << 8) | (DURATION_50 << 4) | DURATION_100),
-  (uint16_t)((NOTE_A4 << 8) | (DURATION_50 << 4) | DURATION_100),
-  (uint16_t)((NOTE_A4 << 8) | (DURATION_50 << 4) | DURATION_200),
-  (uint16_t)((NOTE_A4 << 8) | (DURATION_100 << 4) | DURATION_150),
-  (uint16_t)((NOTE_Ab4 << 8) | (DURATION_50 << 4) | DURATION_200),
-  (uint16_t)((NOTE_A4 << 8) | (DURATION_50 << 4) | DURATION_100),
-  (uint16_t)((NOTE_C5 << 8) | (DURATION_0 << 4) | DURATION_350),
-  (uint16_t)((NOTE_Ab4 << 8) | (DURATION_350 << 4) | DURATION_150),
-  (uint16_t)((NOTE_Ab4 << 8) | (DURATION_50 << 4) | DURATION_100),
-  (uint16_t)((NOTE_A4 << 8) | (DURATION_50 << 4) | DURATION_100),
-  (uint16_t)((NOTE_G4 << 8) | (DURATION_100 << 4) | DURATION_250),
-  (uint16_t)((NOTE_G4 << 8) | (DURATION_50 << 4) | DURATION_50),
-  (uint16_t)((NOTE_F4 << 8) | (DURATION_50 << 4) | DURATION_200),
-  (uint16_t)((NOTE_G4 << 8) | (DURATION_50 << 4) | DURATION_100),
-  (uint16_t)((NOTE_Ab4 << 8) | (DURATION_50 << 4) | DURATION_300),
-  (uint16_t)((NOTE_A4 << 8) | (DURATION_350 << 4) | DURATION_150),
-  (uint16_t)((NOTE_F4 << 8) | (DURATION_50 << 4) | DURATION_50),
-  (uint16_t)((NOTE_F4 << 8) | (DURATION_100 << 4) | DURATION_50),
-  (uint16_t)((NOTE_F4 << 8) | (DURATION_50 << 4) | DURATION_200),
-  (uint16_t)((NOTE_F4 << 8) | (DURATION_100 << 4) | DURATION_150),
-  (uint16_t)((NOTE_E4 << 8) | (DURATION_50 << 4) | DURATION_200),
-  (uint16_t)((NOTE_F4 << 8) | (DURATION_50 << 4) | DURATION_50),
-  (uint16_t)((NOTE_A4 << 8) | (DURATION_50 << 4) | DURATION_350),
-  (uint16_t)((NOTE_G4 << 8) | (DURATION_300 << 4) | DURATION_200),
-  (uint16_t)((NOTE_G4 << 8) | (DURATION_100 << 4) | DURATION_50),
-  (uint16_t)((NOTE_G4 << 8) | (DURATION_100 << 4) | DURATION_50),
-  (uint16_t)((NOTE_G4 << 8) | (DURATION_150 << 4) | DURATION_100),
-  (uint16_t)((NOTE_F4 << 8) | (DURATION_50 << 4) | DURATION_200),
-  (uint16_t)((NOTE_E4 << 8) | (DURATION_50 << 4) | DURATION_100),
-  (uint16_t)((NOTE_D4 << 8) | (DURATION_450 << 4) | DURATION_150),
-  (uint16_t)((NOTE_D5 << 8) | (DURATION_50 << 4) | DURATION_200),
-  (uint16_t)((NOTE_E5 << 8) | (DURATION_50 << 4) | DURATION_100),
-  (uint16_t)((NOTE_D5 << 8) | (DURATION_50 << 4) | DURATION_350),
-  (uint16_t)((NOTE_C5 << 8) | (DURATION_1100 << 4) | DURATION_100),
-  (uint16_t)((NOTE_E5 << 8) | (DURATION_200 << 4) | DURATION_100),
-  (uint16_t)((NOTE_E5 << 8) | (DURATION_50 << 4) | DURATION_50),
-  (uint16_t)((NOTE_E5 << 8) | (DURATION_50 << 4) | DURATION_350),
-  (uint16_t)((NOTE_F5 << 8) | (DURATION_1100 << 4) | DURATION_100),
-  (uint16_t)((NOTE_F5 << 8) | (DURATION_100 << 4) | DURATION_150),
-  (uint16_t)((NOTE_G5 << 8) | (DURATION_50 << 4) | DURATION_100),
-  (uint16_t)((NOTE_F5 << 8) | (DURATION_0 << 4) | DURATION_350),
-  (uint16_t)((NOTE_E5 << 8) | (DURATION_1100 << 4) | DURATION_150),
-  (uint16_t)((NOTE_E5 << 8) | (DURATION_100 << 4) | DURATION_150),
-  (uint16_t)((NOTE_F5 << 8) | (DURATION_50 << 4) | DURATION_100),
-  (uint16_t)((NOTE_E5 << 8) | (DURATION_50 << 4) | DURATION_350),
-  (uint16_t)((NOTE_D5 << 8) | (DURATION_1100 << 4) | DURATION_100),
-  (uint16_t)((NOTE_D5 << 8) | (DURATION_200 << 4) | DURATION_100),
-  (uint16_t)((NOTE_E5 << 8) | (DURATION_50 << 4) | DURATION_50),
-  (uint16_t)((NOTE_D5 << 8) | (DURATION_0 << 4) | DURATION_350),
-  (uint16_t)((NOTE_C5 << 8) | (DURATION_850 << 4) | DURATION_200),
-  (uint16_t)((NOTE_E5 << 8) | (DURATION_150 << 4) | DURATION_100),
-  (uint16_t)((NOTE_E5 << 8) | (DURATION_200 << 4) | DURATION_100),
-  (uint16_t)((NOTE_E5 << 8) | (DURATION_200 << 4) | DURATION_50),
-  (uint16_t)((NOTE_E5 << 8) | (DURATION_50 << 4) | DURATION_200),
-  (uint16_t)((NOTE_F5 << 8) | (DURATION_1100 << 4) | DURATION_150),
-  (uint16_t)((NOTE_F5 << 8) | (DURATION_200 << 4) | DURATION_100),
-  (uint16_t)((NOTE_F5 << 8) | (DURATION_150 << 4) | DURATION_100),
-  (uint16_t)((NOTE_F5 << 8) | (DURATION_50 << 4) | DURATION_250),
-  (uint16_t)((NOTE_E5 << 8) | (DURATION_1100 << 4) | DURATION_150),
-  (uint16_t)((NOTE_A4 << 8) | (DURATION_50 << 4) | DURATION_200),
-  (uint16_t)((NOTE_Cb5 << 8) | (DURATION_100 << 4) | DURATION_200),
-  (uint16_t)((NOTE_D5 << 8) | (DURATION_0 << 4) | DURATION_500),
+  (uint16_t)((NOTE_A4 << 10) | (DURATION_74 << 5) | DURATION_37),
+  (uint16_t)((NOTE_A4 << 10) | (DURATION_74 << 5) | DURATION_74),
+  (uint16_t)((NOTE_A4 << 10) | (DURATION_37 << 5) | DURATION_185),
+  (uint16_t)((NOTE_A4 << 10) | (DURATION_148 << 5) | DURATION_74),
+  (uint16_t)((NOTE_Ab4 << 10) | (DURATION_74 << 5) | DURATION_185),
+  (uint16_t)((NOTE_A4 << 10) | (DURATION_37 << 5) | DURATION_74),
+  (uint16_t)((NOTE_C5 << 10) | (DURATION_37 << 5) | DURATION_333),
+  (uint16_t)((NOTE_Ab4 << 10) | (DURATION_370 << 5) | DURATION_148),
+  (uint16_t)((NOTE_Ab4 << 10) | (DURATION_74 << 5) | DURATION_74),
+  (uint16_t)((NOTE_A4 << 10) | (DURATION_37 << 5) | DURATION_74),
+  (uint16_t)((NOTE_G4 << 10) | (DURATION_37 << 5) | DURATION_185),
+  (uint16_t)((NOTE_G4 << 10) | (DURATION_148 << 5) | DURATION_74),
+  (uint16_t)((NOTE_F4 << 10) | (DURATION_74 << 5) | DURATION_185),
+  (uint16_t)((NOTE_G4 << 10) | (DURATION_37 << 5) | DURATION_74),
+  (uint16_t)((NOTE_Ab4 << 10) | (DURATION_37 << 5) | DURATION_296),
+  (uint16_t)((NOTE_A4 << 10) | (DURATION_333 << 5) | DURATION_148),
+  (uint16_t)((NOTE_A4 << 10) | (DURATION_74 << 5) | DURATION_74),
+  (uint16_t)((NOTE_A4 << 10) | (DURATION_74 << 5) | DURATION_74),
+  (uint16_t)((NOTE_A4 << 10) | (DURATION_111 << 5) | DURATION_296),
+  (uint16_t)((NOTE_A4 << 10) | (DURATION_74 << 5) | DURATION_74),
+  (uint16_t)((NOTE_Ab4 << 10) | (DURATION_74 << 5) | DURATION_185),
+  (uint16_t)((NOTE_A4 << 10) | (DURATION_111 << 5) | DURATION_111),
+  (uint16_t)((NOTE_C5 << 10) | (DURATION_37 << 5) | DURATION_222),
+  (uint16_t)((NOTE_Ab4 << 10) | (DURATION_370 << 5) | DURATION_111),
+  (uint16_t)((NOTE_A4 << 10) | (DURATION_74 << 5) | DURATION_37),
+  (uint16_t)((NOTE_Ab4 << 10) | (DURATION_74 << 5) | DURATION_74),
+  (uint16_t)((NOTE_A4 << 10) | (DURATION_74 << 5) | DURATION_296),
+  (uint16_t)((NOTE_G4 << 10) | (DURATION_74 << 5) | DURATION_74),
+  (uint16_t)((NOTE_G4 << 10) | (DURATION_37 << 5) | DURATION_185),
+  (uint16_t)((NOTE_D5 << 10) | (DURATION_333 << 5) | DURATION_407),
+  (uint16_t)((NOTE_A4 << 10) | (DURATION_37 << 5) | DURATION_74),
+  (uint16_t)((NOTE_A4 << 10) | (DURATION_37 << 5) | DURATION_74),
+  (uint16_t)((NOTE_A4 << 10) | (DURATION_37 << 5) | DURATION_222),
+  (uint16_t)((NOTE_A4 << 10) | (DURATION_74 << 5) | DURATION_148),
+  (uint16_t)((NOTE_Ab4 << 10) | (DURATION_74 << 5) | DURATION_185),
+  (uint16_t)((NOTE_A4 << 10) | (DURATION_37 << 5) | DURATION_74),
+  (uint16_t)((NOTE_C5 << 10) | (DURATION_37 << 5) | DURATION_370),
+  (uint16_t)((NOTE_Ab4 << 10) | (DURATION_333 << 5) | DURATION_111),
+  (uint16_t)((NOTE_Ab4 << 10) | (DURATION_74 << 5) | DURATION_74),
+  (uint16_t)((NOTE_A4 << 10) | (DURATION_37 << 5) | DURATION_74),
+  (uint16_t)((NOTE_G4 << 10) | (DURATION_111 << 5) | DURATION_259),
+  (uint16_t)((NOTE_G4 << 10) | (DURATION_74 << 5) | DURATION_74),
+  (uint16_t)((NOTE_F4 << 10) | (DURATION_37 << 5) | DURATION_222),
+  (uint16_t)((NOTE_G4 << 10) | (DURATION_37 << 5) | DURATION_74),
+  (uint16_t)((NOTE_Ab4 << 10) | (DURATION_37 << 5) | DURATION_296),
+  (uint16_t)((NOTE_A4 << 10) | (DURATION_333 << 5) | DURATION_185),
+  (uint16_t)((NOTE_F4 << 10) | (DURATION_74 << 5) | DURATION_37),
+  (uint16_t)((NOTE_F4 << 10) | (DURATION_74 << 5) | DURATION_37),
+  (uint16_t)((NOTE_F4 << 10) | (DURATION_37 << 5) | DURATION_222),
+  (uint16_t)((NOTE_F4 << 10) | (DURATION_111 << 5) | DURATION_111),
+  (uint16_t)((NOTE_E4 << 10) | (DURATION_37 << 5) | DURATION_222),
+  (uint16_t)((NOTE_F4 << 10) | (DURATION_74 << 5) | DURATION_74),
+  (uint16_t)((NOTE_A4 << 10) | (DURATION_37 << 5) | DURATION_370),
+  (uint16_t)((NOTE_G4 << 10) | (DURATION_259 << 5) | DURATION_185),
+  (uint16_t)((NOTE_G4 << 10) | (DURATION_74 << 5) | DURATION_37),
+  (uint16_t)((NOTE_G4 << 10) | (DURATION_74 << 5) | DURATION_37),
+  (uint16_t)((NOTE_G4 << 10) | (DURATION_185 << 5) | DURATION_74),
+  (uint16_t)((NOTE_F4 << 10) | (DURATION_37 << 5) | DURATION_222),
+  (uint16_t)((NOTE_E4 << 10) | (DURATION_37 << 5) | DURATION_111),
+  (uint16_t)((NOTE_D4 << 10) | (DURATION_444 << 5) | DURATION_148),
+  (uint16_t)((NOTE_D5 << 10) | (DURATION_37 << 5) | DURATION_222),
+  (uint16_t)((NOTE_E5 << 10) | (DURATION_37 << 5) | DURATION_74),
+  (uint16_t)((NOTE_D5 << 10) | (DURATION_37 << 5) | DURATION_333),
+  (uint16_t)((NOTE_C5 << 10) | (DURATION_1110 << 5) | DURATION_111),
+  (uint16_t)((NOTE_E5 << 10) | (DURATION_185 << 5) | DURATION_74),
+  (uint16_t)((NOTE_E5 << 10) | (DURATION_37 << 5) | DURATION_74),
+  (uint16_t)((NOTE_E5 << 10) | (DURATION_37 << 5) | DURATION_370),
+  (uint16_t)((NOTE_F5 << 10) | (DURATION_1110 << 5) | DURATION_111),
+  (uint16_t)((NOTE_F5 << 10) | (DURATION_111 << 5) | DURATION_148),
+  (uint16_t)((NOTE_G5 << 10) | (DURATION_37 << 5) | DURATION_74),
+  (uint16_t)((NOTE_F5 << 10) | (DURATION_0 << 5) | DURATION_333),
+  (uint16_t)((NOTE_E5 << 10) | (DURATION_1110 << 5) | DURATION_148),
+  (uint16_t)((NOTE_E5 << 10) | (DURATION_111 << 5) | DURATION_148),
+  (uint16_t)((NOTE_F5 << 10) | (DURATION_37 << 5) | DURATION_74),
+  (uint16_t)((NOTE_E5 << 10) | (DURATION_37 << 5) | DURATION_333),
+  (uint16_t)((NOTE_D5 << 10) | (DURATION_1110 << 5) | DURATION_111),
+  (uint16_t)((NOTE_D5 << 10) | (DURATION_185 << 5) | DURATION_74),
+  (uint16_t)((NOTE_E5 << 10) | (DURATION_37 << 5) | DURATION_74),
+  (uint16_t)((NOTE_D5 << 10) | (DURATION_37 << 5) | DURATION_333),
+  (uint16_t)((NOTE_C5 << 10) | (DURATION_851 << 5) | DURATION_185),
+  (uint16_t)((NOTE_E5 << 10) | (DURATION_148 << 5) | DURATION_74),
+  (uint16_t)((NOTE_E5 << 10) | (DURATION_185 << 5) | DURATION_74),
+  (uint16_t)((NOTE_E5 << 10) | (DURATION_185 << 5) | DURATION_74),
+  (uint16_t)((NOTE_E5 << 10) | (DURATION_37 << 5) | DURATION_222),
+  (uint16_t)((NOTE_F5 << 10) | (DURATION_1110 << 5) | DURATION_111),
+  (uint16_t)((NOTE_F5 << 10) | (DURATION_185 << 5) | DURATION_74),
+  (uint16_t)((NOTE_F5 << 10) | (DURATION_148 << 5) | DURATION_74),
+  (uint16_t)((NOTE_F5 << 10) | (DURATION_37 << 5) | DURATION_259),
+  (uint16_t)((NOTE_E5 << 10) | (DURATION_1073 << 5) | DURATION_148),
+  (uint16_t)((NOTE_A4 << 10) | (DURATION_37 << 5) | DURATION_222),
+  (uint16_t)((NOTE_Cb5 << 10) | (DURATION_74 << 5) | DURATION_185),
+  (uint16_t)((NOTE_D5 << 10) | (DURATION_0 << 5) | DURATION_481),
 };
 
 #define MELODY_SIZE sizeof(melody) / sizeof(melody_data)
-#define MELODY_TONE(x) ((melody[x] >> 8) & 0xFf)
-#define MELODY_NO_TONE_DURATION(x) melody_durations[(melody[x] >> 4) & 0xf]
-#define MELODY_DURATION(x) melody_durations[melody[x] & 0xF]
+#define MELODY_TONE(x) ((melody[x] >> 10) & 0x3f)
+#define MELODY_NO_TONE_DURATION(x) melody_durations[(melody[x] >> 5) & 0x1f]
+#define MELODY_DURATION(x) melody_durations[melody[x] & 0x1F]
 
 void tone(uint8_t frequency)
 {
   if (frequency <= 0) {
     TM2B = 0;
   } else {
-    TM2S = 3 << 5 | 2;
+    TM2S = 3 << 5 | (12 - 1);
     TM2B = frequency;
   }
 }
+
 
 #endif

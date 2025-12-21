@@ -111,9 +111,10 @@ input_melody = """
 durations = set({})
 notes = {}
 melodies = []
+not_rounded = {}
 
 def rount_duration(x):
-    base = 50
+    base = 37
     return int(round(x / base) * base)
 
 for n in input_notes.split("\n"):
@@ -134,10 +135,13 @@ for a in input_melody.split("\n"):
     d = rount_duration(int(a[1]))
     nd = rount_duration(int(a[2]))
 
+    not_rounded[d] = int(a[1])
+    not_rounded[nd] = int(a[2])
+
     durations.add(d)
     durations.add(nd)
 
-    melodies.append(f"(uint16_t)((NOTE_{a[0]} << 8) | (DURATION_{nd} << 4) | DURATION_{d}),")
+    melodies.append(f"(uint16_t)((NOTE_{a[0]} << 10) | (DURATION_{nd} << 5) | DURATION_{d}),")
 
 print("""
 #include <stdint.h>
@@ -149,7 +153,7 @@ notes_list = []
 for key, value in notes.items():
     notes_list.append([key, value])
 
-print("#define TONE_FREQ (16000000 / (2 * 64 * 3))")
+print("#define TONE_FREQ (16000000 / (2 * 64 * 12))")
 print("#define F(x) (uint8_t)(TONE_FREQ / x - 1)")
 
 print()
@@ -169,7 +173,7 @@ print()
 print("const uint32_t melody_durations[] = {")
 
 for i, d in enumerate(durations):
-    print(f"  LOOP_CTR_32(MS_TO_CYCLES({d})), // {i}")
+    print(f"  LOOP_CTR_32(MS_TO_CYCLES({not_rounded[d]})), // {i}")
 
 print("};")
 
@@ -186,16 +190,16 @@ print("};")
 
 print("""
 #define MELODY_SIZE sizeof(melody) / sizeof(melody_data)
-#define MELODY_TONE(x) ((melody[x] >> 8) & 0xFf)
-#define MELODY_NO_TONE_DURATION(x) melody_durations[(melody[x] >> 4) & 0xf]
-#define MELODY_DURATION(x) melody_durations[melody[x] & 0xF]
+#define MELODY_TONE(x) ((melody[x] >> 10) & 0x3f)
+#define MELODY_NO_TONE_DURATION(x) melody_durations[(melody[x] >> 5) & 0x1f]
+#define MELODY_DURATION(x) melody_durations[melody[x] & 0x1F]
 
 void tone(uint8_t frequency)
 {
   if (frequency <= 0) {
     TM2B = 0;
   } else {
-    TM2S = 3 << 5 | 2;
+    TM2S = 3 << 5 | (12 - 1);
     TM2B = frequency;
   }
 }
