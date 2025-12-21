@@ -10,6 +10,10 @@
 
 #define BUTTON_BIT 4 // PA4
 
+#define isButtonActive()    !(PA & (1 << BUTTON_BIT))
+
+#define sleep() __asm stopsys __endasm;
+
 void playMelody() {
   for (int thisNote = 0; thisNote < MELODY_SIZE; thisNote++) {   
     tone(MELODY_TONE(thisNote));
@@ -21,7 +25,7 @@ void playMelody() {
 }
 
 void main() {
-  // PAC &= ~(1 << BUTTON_BIT);
+  PAC &= ~(1 << BUTTON_BIT);
   PAC |= (1 << BUZZER_BIT);
   PADIER |= (1 << BUTTON_BIT);
   PAPH |= (1 << BUTTON_BIT);
@@ -30,11 +34,18 @@ void main() {
   TM2C = (uint8_t)(TM2C_MODE_PERIOD | TM2C_OUT_PA3 | TM2C_CLK_IHRC);
   TM2S = 0x0;
 
+  uint8_t clkmd = CLKMD;
+
   while (1) {
-    if (!(PA & (1 << BUTTON_BIT))) {
+    if (isButtonActive()) {
+      CLKMD = clkmd;
       playMelody();
     }
-    _delay_ms(1);
+    
+    CLKMD = 0xF4;
+    CLKMD &= ~CLKMD_ENABLE_IHRC;
+
+    sleep();
   }
 }
 
