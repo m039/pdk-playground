@@ -44,16 +44,16 @@ const uint8_t melody_tones[] = {
 #define D2000 7
 #define D0 8
 
-const uint32_t melody_durations[] = {
-    LOOP_CTR_32(MS_TO_CYCLES(125)), // 0
-    LOOP_CTR_32(MS_TO_CYCLES(250)), // 1
-    LOOP_CTR_32(MS_TO_CYCLES(375)), // 2
-    LOOP_CTR_32(MS_TO_CYCLES(500)), // 3
-    LOOP_CTR_32(MS_TO_CYCLES(750)), // 4
-    LOOP_CTR_32(MS_TO_CYCLES(1000)), // 5
-    LOOP_CTR_32(MS_TO_CYCLES(1500)), // 6
-    LOOP_CTR_32(MS_TO_CYCLES(2000)), // 7
-    LOOP_CTR_32(MS_TO_CYCLES(0)) // 8
+const uint16_t melody_durations[] = {
+    125, // 0
+    250, // 1
+    375, // 2
+    500, // 3
+    750, // 4
+    1000, // 5
+    1500, // 6
+    2000, // 7
+    0 // 8
 };
 
 typedef struct {
@@ -170,7 +170,7 @@ const melody_data melody[102] = {
 
 #define MELODY_SIZE sizeof(melody) / sizeof(melody_data)
 #define MELODY_TONE(x) melody_tones[melody[x].t]
-#define MELODY_NO_TONE_DURATION(x) LOOP_CTR_32(MS_TO_CYCLES(25))
+#define MELODY_NO_TONE_DURATION(x) 25))
 #define MELODY_DURATION(x) melody_durations[melody[x].d]
 
 void tone(uint8_t frequency)

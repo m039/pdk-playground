@@ -172,10 +172,10 @@ for i, d in enumerate(durations):
 
 print()
 
-print("const uint32_t melody_durations[] = {")
+print("const uint16_t melody_durations[] = {")
 
 for i, d in enumerate(durations):
-    print(f"  LOOP_CTR_32(MS_TO_CYCLES({d})), // {i}")
+    print(f"  {d}, // {i}")
 
 print("};")
 

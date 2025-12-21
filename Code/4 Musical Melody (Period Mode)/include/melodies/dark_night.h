@@ -48,14 +48,14 @@ const uint8_t melody_tones[] = {
 #define DURATION_500 5
 #define DURATION_1500 6
 
-const uint32_t melody_durations[] = {
-  LOOP_CTR_32(MS_TO_CYCLES(0)), // 0
-  LOOP_CTR_32(MS_TO_CYCLES(167)), // 1
-  LOOP_CTR_32(MS_TO_CYCLES(1000)), // 2
-  LOOP_CTR_32(MS_TO_CYCLES(333)), // 3
-  LOOP_CTR_32(MS_TO_CYCLES(2000)), // 4
-  LOOP_CTR_32(MS_TO_CYCLES(500)), // 5
-  LOOP_CTR_32(MS_TO_CYCLES(1500)), // 6
+const uint16_t melody_durations[] = {
+  0, // 0
+  167, // 1
+  1000, // 2
+  333, // 3
+  2000, // 4
+  500, // 5
+  1500, // 6
 };
 
 typedef struct {

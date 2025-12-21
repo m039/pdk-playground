@@ -114,7 +114,7 @@ melodies = []
 not_rounded = {}
 
 def rount_duration(x):
-    base = 37
+    base = 15
     return int(round(x / base) * base)
 
 for n in input_notes.split("\n"):
@@ -141,7 +141,7 @@ for a in input_melody.split("\n"):
     durations.add(d)
     durations.add(nd)
 
-    melodies.append(f"(uint16_t)((NOTE_{a[0]} << 10) | (DURATION_{nd} << 5) | DURATION_{d}),")
+    melodies.append(f"(NOTE_{a[0]} << 10) | (DURATION_{nd} << 5) | DURATION_{d},")
 
 print("""
 #include <stdint.h>
@@ -154,7 +154,7 @@ for key, value in notes.items():
     notes_list.append([key, value])
 
 print("#define TONE_FREQ (16000000 / (2 * 64 * 12))")
-print("#define F(x) (uint8_t)(TONE_FREQ / x - 1)")
+print("#define F(x) (TONE_FREQ / x - 1)")
 
 print()
 
@@ -170,10 +170,10 @@ for i, d in enumerate(durations):
 
 print()
 
-print("const uint32_t melody_durations[] = {")
+print("const uint16_t melody_durations[] = {")
 
 for i, d in enumerate(durations):
-    print(f"  LOOP_CTR_32(MS_TO_CYCLES({not_rounded[d]})), // {i}")
+    print(f"  {not_rounded[d]}, // {i}")
 
 print("};")
 

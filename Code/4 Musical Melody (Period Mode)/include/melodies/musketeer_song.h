@@ -65,39 +65,39 @@ const uint8_t melody_tones[] = {
 #define DURATION_250 30
 #define DURATION_255 31
 
-const uint32_t melody_durations[] = {
-  LOOP_CTR_32(MS_TO_CYCLES(0)), // 0
-  LOOP_CTR_32(MS_TO_CYCLES(516)), // 1
-  LOOP_CTR_32(MS_TO_CYCLES(266)), // 2
-  LOOP_CTR_32(MS_TO_CYCLES(271)), // 3
-  LOOP_CTR_32(MS_TO_CYCLES(16)), // 4
-  LOOP_CTR_32(MS_TO_CYCLES(21)), // 5
-  LOOP_CTR_32(MS_TO_CYCLES(667)), // 6
-  LOOP_CTR_32(MS_TO_CYCLES(542)), // 7
-  LOOP_CTR_32(MS_TO_CYCLES(1188)), // 8
-  LOOP_CTR_32(MS_TO_CYCLES(422)), // 9
-  LOOP_CTR_32(MS_TO_CYCLES(167)), // 10
-  LOOP_CTR_32(MS_TO_CYCLES(688)), // 11
-  LOOP_CTR_32(MS_TO_CYCLES(563)), // 12
-  LOOP_CTR_32(MS_TO_CYCLES(313)), // 13
-  LOOP_CTR_32(MS_TO_CYCLES(1083)), // 14
-  LOOP_CTR_32(MS_TO_CYCLES(188)), // 15
-  LOOP_CTR_32(MS_TO_CYCLES(63)), // 16
-  LOOP_CTR_32(MS_TO_CYCLES(78)), // 17
-  LOOP_CTR_32(MS_TO_CYCLES(208)), // 18
-  LOOP_CTR_32(MS_TO_CYCLES(2000)), // 19
-  LOOP_CTR_32(MS_TO_CYCLES(83)), // 20
-  LOOP_CTR_32(MS_TO_CYCLES(734)), // 21
-  LOOP_CTR_32(MS_TO_CYCLES(479)), // 22
-  LOOP_CTR_32(MS_TO_CYCLES(484)), // 23
-  LOOP_CTR_32(MS_TO_CYCLES(229)), // 24
-  LOOP_CTR_32(MS_TO_CYCLES(234)), // 25
-  LOOP_CTR_32(MS_TO_CYCLES(500)), // 26
-  LOOP_CTR_32(MS_TO_CYCLES(245)), // 27
-  LOOP_CTR_32(MS_TO_CYCLES(630)), // 28
-  LOOP_CTR_32(MS_TO_CYCLES(120)), // 29
-  LOOP_CTR_32(MS_TO_CYCLES(250)), // 30
-  LOOP_CTR_32(MS_TO_CYCLES(255)), // 31
+const uint16_t melody_durations[] = {
+  0, // 0
+  516, // 1
+  266, // 2
+  271, // 3
+  16, // 4
+  21, // 5
+  667, // 6
+  542, // 7
+  1188, // 8
+  422, // 9
+  167, // 10
+  688, // 11
+  563, // 12
+  313, // 13
+  1083, // 14
+  188, // 15
+  63, // 16
+  78, // 17
+  208, // 18
+  2000, // 19
+  83, // 20
+  734, // 21
+  479, // 22
+  484, // 23
+  229, // 24
+  234, // 25
+  500, // 26
+  245, // 27
+  630, // 28
+  120, // 29
+  250, // 30
+  255, // 31
 };
 
 typedef struct {

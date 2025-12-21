@@ -11,13 +11,19 @@
 
 #define sleep() __asm stopsys __endasm;
 
+void delay(uint16_t time) {
+  for (uint16_t i = 0; i < time; i++) {
+    _delay_ms(1);
+  }
+}
+
 void playMelody() {
   for (int thisNote = 0; thisNote < MELODY_SIZE; thisNote++) {   
     tone(MELODY_TONE(thisNote));
-    _delay_loop_32(MELODY_DURATION(thisNote));
+    delay(MELODY_DURATION(thisNote));
     
     tone(0);
-    _delay_loop_32(MELODY_NO_TONE_DURATION(thisNote));
+    delay(MELODY_NO_TONE_DURATION(thisNote));
 
     if (isButtonActive()) {
       break;

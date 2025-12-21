@@ -72,26 +72,26 @@ const uint8_t melody_tones[] = {
 #define DURATION_251 17
 #define DURATION_124 18
 
-const uint32_t melody_durations[] = {
-  LOOP_CTR_32(MS_TO_CYCLES(0)), // 0
-  LOOP_CTR_32(MS_TO_CYCLES(1)), // 1
-  LOOP_CTR_32(MS_TO_CYCLES(5)), // 2
-  LOOP_CTR_32(MS_TO_CYCLES(7)), // 3
-  LOOP_CTR_32(MS_TO_CYCLES(264)), // 4
-  LOOP_CTR_32(MS_TO_CYCLES(14)), // 5
-  LOOP_CTR_32(MS_TO_CYCLES(276)), // 6
-  LOOP_CTR_32(MS_TO_CYCLES(26)), // 7
-  LOOP_CTR_32(MS_TO_CYCLES(289)), // 8
-  LOOP_CTR_32(MS_TO_CYCLES(39)), // 9
-  LOOP_CTR_32(MS_TO_CYCLES(711)), // 10
-  LOOP_CTR_32(MS_TO_CYCLES(78)), // 11
-  LOOP_CTR_32(MS_TO_CYCLES(474)), // 12
-  LOOP_CTR_32(MS_TO_CYCLES(236)), // 13
-  LOOP_CTR_32(MS_TO_CYCLES(499)), // 14
-  LOOP_CTR_32(MS_TO_CYCLES(118)), // 15
-  LOOP_CTR_32(MS_TO_CYCLES(249)), // 16
-  LOOP_CTR_32(MS_TO_CYCLES(251)), // 17
-  LOOP_CTR_32(MS_TO_CYCLES(124)), // 18
+const uint16_t melody_durations[] = {
+  0, // 0
+  1, // 1
+  5, // 2
+  7, // 3
+  264, // 4
+  14, // 5
+  276, // 6
+  26, // 7
+  289, // 8
+  39, // 9
+  711, // 10
+  78, // 11
+  474, // 12
+  236, // 13
+  499, // 14
+  118, // 15
+  249, // 16
+  251, // 17
+  124, // 18
 };
 
 typedef struct {

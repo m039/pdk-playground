@@ -82,44 +82,44 @@ const uint8_t melody_tones[] = {
 #define DURATION_1146 35
 #define DURATION_125 36
 
-const uint32_t melody_durations[] = {
-  LOOP_CTR_32(MS_TO_CYCLES(0)), // 0
-  LOOP_CTR_32(MS_TO_CYCLES(130)), // 1
-  LOOP_CTR_32(MS_TO_CYCLES(135)), // 2
-  LOOP_CTR_32(MS_TO_CYCLES(141)), // 3
-  LOOP_CTR_32(MS_TO_CYCLES(146)), // 4
-  LOOP_CTR_32(MS_TO_CYCLES(151)), // 5
-  LOOP_CTR_32(MS_TO_CYCLES(156)), // 6
-  LOOP_CTR_32(MS_TO_CYCLES(161)), // 7
-  LOOP_CTR_32(MS_TO_CYCLES(167)), // 8
-  LOOP_CTR_32(MS_TO_CYCLES(172)), // 9
-  LOOP_CTR_32(MS_TO_CYCLES(177)), // 10
-  LOOP_CTR_32(MS_TO_CYCLES(52)), // 11
-  LOOP_CTR_32(MS_TO_CYCLES(182)), // 12
-  LOOP_CTR_32(MS_TO_CYCLES(57)), // 13
-  LOOP_CTR_32(MS_TO_CYCLES(188)), // 14
-  LOOP_CTR_32(MS_TO_CYCLES(63)), // 15
-  LOOP_CTR_32(MS_TO_CYCLES(193)), // 16
-  LOOP_CTR_32(MS_TO_CYCLES(68)), // 17
-  LOOP_CTR_32(MS_TO_CYCLES(198)), // 18
-  LOOP_CTR_32(MS_TO_CYCLES(73)), // 19
-  LOOP_CTR_32(MS_TO_CYCLES(78)), // 20
-  LOOP_CTR_32(MS_TO_CYCLES(83)), // 21
-  LOOP_CTR_32(MS_TO_CYCLES(89)), // 22
-  LOOP_CTR_32(MS_TO_CYCLES(94)), // 23
-  LOOP_CTR_32(MS_TO_CYCLES(354)), // 24
-  LOOP_CTR_32(MS_TO_CYCLES(99)), // 25
-  LOOP_CTR_32(MS_TO_CYCLES(104)), // 26
-  LOOP_CTR_32(MS_TO_CYCLES(1000)), // 27
-  LOOP_CTR_32(MS_TO_CYCLES(875)), // 28
-  LOOP_CTR_32(MS_TO_CYCLES(109)), // 29
-  LOOP_CTR_32(MS_TO_CYCLES(625)), // 30
-  LOOP_CTR_32(MS_TO_CYCLES(115)), // 31
-  LOOP_CTR_32(MS_TO_CYCLES(500)), // 32
-  LOOP_CTR_32(MS_TO_CYCLES(375)), // 33
-  LOOP_CTR_32(MS_TO_CYCLES(120)), // 34
-  LOOP_CTR_32(MS_TO_CYCLES(1146)), // 35
-  LOOP_CTR_32(MS_TO_CYCLES(125)), // 36
+const uint16_t melody_durations[] = {
+  0, // 0
+  130, // 1
+  135, // 2
+  141, // 3
+  146, // 4
+  151, // 5
+  156, // 6
+  161, // 7
+  167, // 8
+  172, // 9
+  177, // 10
+  52, // 11
+  182, // 12
+  57, // 13
+  188, // 14
+  63, // 15
+  193, // 16
+  68, // 17
+  198, // 18
+  73, // 19
+  78, // 20
+  83, // 21
+  89, // 22
+  94, // 23
+  354, // 24
+  99, // 25
+  104, // 26
+  1000, // 27
+  875, // 28
+  109, // 29
+  625, // 30
+  115, // 31
+  500, // 32
+  375, // 33
+  120, // 34
+  1146, // 35
+  125, // 36
 };
 
 typedef struct {
