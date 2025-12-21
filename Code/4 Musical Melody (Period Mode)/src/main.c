@@ -59,6 +59,7 @@ void main() {
       CLKMD = clkmd;
       buttonPressed = 1;
       playMelody();
+      buttonPressed = 0;
     }
     
     CLKMD = 0xF4;
