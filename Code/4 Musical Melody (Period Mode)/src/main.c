@@ -11,22 +11,34 @@
 
 #define sleep() __asm stopsys __endasm;
 
-void delay(uint16_t time) {
+uint8_t buttonPressed;
+
+uint8_t delay(uint16_t time) {
   for (uint16_t i = 0; i < time; i++) {
     _delay_ms(1);
+
+    if (isButtonActive()) {
+      if (!buttonPressed) {
+        return 1;
+      }
+    } else {
+      buttonPressed = 0;
+    }
   }
+
+  return 0;
 }
 
 void playMelody() {
   for (int thisNote = 0; thisNote < MELODY_SIZE; thisNote++) {   
     tone(MELODY_TONE(thisNote));
-    delay(MELODY_DURATION(thisNote));
+    if (delay(MELODY_DURATION(thisNote))) {
+      return;
+    }
     
     tone(0);
-    delay(MELODY_NO_TONE_DURATION(thisNote));
-
-    if (isButtonActive()) {
-      break;
+    if (delay(MELODY_NO_TONE_DURATION(thisNote))) {
+      return;
     }
   }
 }
@@ -45,6 +57,7 @@ void main() {
   while (1) {
     if (isButtonActive()) {
       CLKMD = clkmd;
+      buttonPressed = 1;
       playMelody();
     }
     
