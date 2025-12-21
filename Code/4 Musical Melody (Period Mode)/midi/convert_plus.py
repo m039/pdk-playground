@@ -137,7 +137,7 @@ for a in input_melody.split("\n"):
     durations.add(d)
     durations.add(nd)
 
-    melodies.append(f"{{NOTE_{a[0]}, (DURATION_{nd} << 4) | DURATION_{d}}},")
+    melodies.append(f"(uint16_t)((NOTE_{a[0]} << 8) | (DURATION_{nd} << 4) | DURATION_{d}),")
 
 print("""
 #include <stdint.h>
@@ -151,6 +151,8 @@ for key, value in notes.items():
 
 print("#define TONE_FREQ (16000000 / (2 * 64 * 3))")
 print("#define F(x) (uint8_t)(TONE_FREQ / x - 1)")
+
+print()
 
 for i, n in enumerate(notes_list):
     print(f"#define NOTE_{n[0]} F({n[1]})")
@@ -172,10 +174,7 @@ for i, d in enumerate(durations):
 print("};")
 
 print("""  
-typedef struct {
-    uint8_t t;
-    uint8_t d;
-} melody_data;
+typedef uint16_t melody_data;
 """)
 
 print(f"const melody_data melody[{len(melodies)}] = {{")
@@ -187,9 +186,9 @@ print("};")
 
 print("""
 #define MELODY_SIZE sizeof(melody) / sizeof(melody_data)
-#define MELODY_TONE(x) melody[x].t
-#define MELODY_NO_TONE_DURATION(x) melody_durations[(melody[x].d >> 4) & 0xf]
-#define MELODY_DURATION(x) melody_durations[melody[x].d & 0xF]
+#define MELODY_TONE(x) ((melody[x] >> 8) & 0xFf)
+#define MELODY_NO_TONE_DURATION(x) melody_durations[(melody[x] >> 4) & 0xf]
+#define MELODY_DURATION(x) melody_durations[melody[x] & 0xF]
 
 void tone(uint8_t frequency)
 {
