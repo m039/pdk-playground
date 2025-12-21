@@ -1,7 +1,7 @@
 #include <pdk/device.h>
 #include "auto_sysclock.h"
 #include "delay.h"
-#include "melodies/wake_up_and_sing.h"
+#include "melodies/komarovo.h"
 
 #define BUZZER_BIT 3 // PA3 (TM2PWM)
 
