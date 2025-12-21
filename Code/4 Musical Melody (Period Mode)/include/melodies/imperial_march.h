@@ -1,6 +1,8 @@
 #ifndef _IMPERIAL_MARCH_
 #define _IMPERIAL_MARCH_
 
+// https://medium.com/@bigmaitz/using-arduino-to-play-star-wars-imperial-march-tune-47f75a6e1e43
+
 #include <stdint.h>
 #include "delay.h"
 
@@ -79,8 +81,6 @@ typedef struct {
     uint8_t t;
     uint8_t d;
 } melody_data;
-
-// Melody taken from https://medium.com/@bigmaitz/using-arduino-to-play-star-wars-imperial-march-tune-47f75a6e1e43
 
 const melody_data melody[] = {
   {Na, D500}, {Na, D500}, {Na, D500}, {Nf, D350}, {NcH, D150}, {Na, D500}, {Nf, D350}, {NcH, D150}, {Na, D650}, {REST, D500}, // first
