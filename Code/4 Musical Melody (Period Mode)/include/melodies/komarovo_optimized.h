@@ -7,7 +7,7 @@
 #include <stdint.h>
 #include "delay.h"
 
-#define TONE_FREQ (16000000 / (2 * 64 * 12))
+#define TONE_FREQ (16000000 / (2 * 64 * 7))
 #define F(x) (TONE_FREQ / x - 1)
 
 #define NOTE_A4 F(440)
@@ -198,7 +198,7 @@ void tone(uint8_t frequency)
   if (frequency <= 0) {
     TM2B = 0;
   } else {
-    TM2S = 3 << 5 | (12 - 1);
+    TM2S = 3 << 5 | (7 - 1);
     TM2B = frequency;
   }
 }
