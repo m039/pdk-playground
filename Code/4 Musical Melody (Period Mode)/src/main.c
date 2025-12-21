@@ -14,6 +14,9 @@
 
 #define sleep() __asm stopsys __endasm;
 
+uint8_t buttonPressed = 0;
+
+
 void playMelody() {
   for (int thisNote = 0; thisNote < MELODY_SIZE; thisNote++) {   
     tone(MELODY_TONE(thisNote));
@@ -21,11 +24,14 @@ void playMelody() {
     
     tone(0);
     _delay_loop_32(MELODY_NO_TONE(thisNote));
+
+    if (isButtonActive()) {
+      break;
+    }
   }
 }
 
 void main() {
-  PAC &= ~(1 << BUTTON_BIT);
   PAC |= (1 << BUZZER_BIT);
   PADIER |= (1 << BUTTON_BIT);
   PAPH |= (1 << BUTTON_BIT);
