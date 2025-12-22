@@ -113,7 +113,7 @@ notes = {}
 melodies = []
 not_rounded = {}
 
-def rount_duration(x):
+def round_duration(x):
     base = 15
     return int(round(x / base) * base)
 
@@ -132,8 +132,8 @@ for a in input_melody.split("\n"):
     if len(a) != 3:
         continue
     
-    d = rount_duration(int(a[1]))
-    nd = rount_duration(int(a[2]))
+    d = round_duration(int(a[1]))
+    nd = round_duration(int(a[2]))
 
     not_rounded[d] = int(a[1])
     not_rounded[nd] = int(a[2])
