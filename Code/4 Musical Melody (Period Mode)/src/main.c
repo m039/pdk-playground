@@ -1,19 +1,12 @@
 #include <pdk/device.h>
 #include "auto_sysclock.h"
 #include "delay.h"
-#include "melodies/russian_anthem.h"
-
-#define BUZZER_BIT 3 // PA3 (TM2PWM)
-
-#define BUTTON_BIT 4 // PA4
-
-#define isButtonActive()    !(PA & (1 << BUTTON_BIT))
-
-#define sleep() __asm stopsys __endasm;
+#include "melodies/komarovo_optimized.h"
+#include "config.h"
 
 uint8_t buttonPressed;
 
-uint8_t delay(uint16_t time) {
+uint8_t delay_ms(uint16_t time) {
   for (uint16_t i = 0; i < time; i++) {
     _delay_ms(1);
 
@@ -32,40 +25,43 @@ uint8_t delay(uint16_t time) {
 void playMelody() {
   for (int thisNote = 0; thisNote < MELODY_SIZE; thisNote++) {   
     tone(MELODY_TONE(thisNote));
-    if (delay(MELODY_DURATION(thisNote))) {
+    if (delay_ms(MELODY_DURATION(thisNote))) {
       return;
     }
     
     tone(0);
-    if (delay(MELODY_NO_TONE_DURATION(thisNote))) {
+    if (delay_ms(MELODY_NO_TONE_DURATION(thisNote))) {
       return;
     }
   }
 }
 
 void main() {
-  PADIER |= (1 << BUTTON_BIT);
-  PAPH |= (1 << BUTTON_BIT);
-
-  TM2B = 0;
-  TM2S = 0x0;
+  buttonSetup();
 
   uint8_t clkmd = CLKMD;
 
   while (1) {
     if (isButtonActive()) {
-      // Enable buzzer output
-      PAC |= (1 << BUZZER_BIT);
-      TM2C = (uint8_t)(TM2C_MODE_PERIOD | TM2C_OUT_PA3 | TM2C_CLK_IHRC);
+      if (buttonPressed)
+      {
+        return;
+      }
 
       CLKMD = clkmd;
+
       buttonPressed = 1;
+      buzzerOn();
       playMelody();
+      if (isButtonActive()) {
+        buttonPressed = 1;
+      }
+      buzzerOff();
+    } else {
+      buttonPressed = 0;
     }
 
-    // Disable buzzer output. (Otherwise it will leak the current.)
-    PAC &= ~(1 << BUZZER_BIT);
-    TM2C = 0;
+    buzzerOff();
     
     CLKMD = 0xF4;
     CLKMD &= ~CLKMD_ENABLE_IHRC;

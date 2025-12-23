@@ -42,3 +42,6 @@
 
 FlatCAM
 *_backup
+build
+launch.json
+c_cpp_properties.json
