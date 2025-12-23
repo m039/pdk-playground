@@ -4,17 +4,17 @@
 #include <stdint.h>
 #include "delay.h"
 
-#define NG4 1
-#define ND4 2
-#define NE4 3
-#define NFb4 4
-#define NB3 5
-#define NC4 6
-#define NG3 7
-#define NA3 8
-#define NA4 9
-#define NB4 10
-#define NC5 11
+#define NOTE_G4 1
+#define NOTE_D4 2
+#define NOTE_E4 3
+#define NOTE_Fb4 4
+#define NOTE_B3 5
+#define NOTE_C4 6
+#define NOTE_G3 7
+#define NOTE_A3 8
+#define NOTE_A4 9
+#define NOTE_B4 10
+#define NOTE_C5 11
 
 #define TONE_FREQ (16000000 / (2 * 64 * 3))
 #define F(x) (uint8_t)(TONE_FREQ / x - 1)
@@ -34,144 +34,141 @@ const uint8_t melody_tones[] = {
     F(523), // C5
 };
 
-#define D125 0
-#define D250 1
-#define D375 2
-#define D500 3
-#define D750 4
-#define D1000 5
-#define D1500 6
-#define D2000 7
-#define D0 8
+#define DURATION_0 0
+#define DURATION_125 1
+#define DURATION_250 2
+#define DURATION_375 3
+#define DURATION_500 4
+#define DURATION_750 5
+#define DURATION_1000 6
+#define DURATION_1500 7
+#define DURATION_2000 8
 
 const uint16_t melody_durations[] = {
-    125, // 0
-    250, // 1
-    375, // 2
-    500, // 3
-    750, // 4
-    1000, // 5
-    1500, // 6
-    2000, // 7
-    0 // 8
+    0, // 0
+    125, // 1
+    250, // 2
+    375, // 3
+    500, // 4
+    750, // 5
+    1000, // 6
+    1500, // 7
+    2000, // 8
 };
 
-typedef struct {
-    uint8_t t;
-    uint8_t d;
-} melody_data;
+typedef uint16_t melody_data;
 
 // Generated from https://arduinomidi.netlify.app/
 
 const melody_data melody[102] = {
- {NG4, D1500},
- {ND4, D250},
- {NG4, D500},
- {ND4, D375},
- {NE4, D125},
- {NFb4, D500},
- {NB3, D375},
- {NB3, D125},
- {NE4, D500},
- {ND4, D375},
- {NC4, D125},
- {ND4, D500},
- {NG3, D375},
- {NG3, D125},
- {NA3, D500},
- {NA3, D375},
- {NB3, D125},
- {NC4, D500},
- {NC4, D375},
- {ND4, D125},
- {NE4, D500},
- {NFb4, D375},
- {NG4, D125},
- {NA4, D750},
- {ND4, D250},
- {NB4, D500},
- {NA4, D375},
- {NG4, D125},
- {NA4, D500},
- {NFb4, D375},
- {ND4, D125},
- {NG4, D500},
- {NFb4, D375},
- {NE4, D125},
- {NFb4, D500},
- {NB3, D375},
- {NB3, D125},
- {NE4, D500},
- {ND4, D375},
- {NC4, D125},
- {ND4, D500},
- {NG3, D375},
- {NG3, D125},
- {NG4, D500},
- {NFb4, D375},
- {NE4, D125},
- {ND4, D250},
- {NFb4, D250},
- {NG4, D250},
- {NA4, D250},
- {NB4, D1000},
- {NA4, D250},
- {NG4, D250},
- {NFb4, D250},
- {NG4, D250},
- {NA4, D750},
- {ND4, D250},
- {ND4, D1000},
- {NG4, D1000},
- {NFb4, D250},
- {NE4, D250},
- {ND4, D250},
- {NE4, D250},
- {NFb4, D750},
- {NB3, D250},
- {NB3, D1000},
- {NG4, D500},
- {NE4, D375},
- {NFb4, D125},
- {NG4, D500},
- {NE4, D375},
- {NFb4, D125},
- {NG4, D500},
- {NE4, D375},
- {NG4, D125},
- {NC5, D1000},
- {NC5, D1000},
- {NB4, D250},
- {NA4, D250},
- {NG4, D250},
- {NA4, D250},
- {NB4, D750},
- {NG4, D250},
- {NG4, D1000},
- {NA4, D1000},
- {NG4, D250},
- {NFb4, D250},
- {NE4, D250},
- {NFb4, D250},
- {NG4, D750},
- {NE4, D250},
- {NE4, D1000},
- {NG4, D500},
- {NFb4, D375},
- {NE4, D125},
- {ND4, D500},
- {NG3, D375},
- {NG3, D125},
- {ND4, D1000},
- {NE4, D500},
- {NFb4, D500},
- {NG4, D2000},
+ (NOTE_G4 << 8) | DURATION_1500,
+ (NOTE_D4 << 8) | DURATION_250,
+ (NOTE_G4 << 8) | DURATION_500,
+ (NOTE_D4 << 8) | DURATION_375,
+ (NOTE_E4 << 8) | DURATION_125,
+ (NOTE_Fb4 << 8) | DURATION_500,
+ (NOTE_B3 << 8) | DURATION_375,
+ (NOTE_B3 << 8) | DURATION_125,
+ (NOTE_E4 << 8) | DURATION_500,
+ (NOTE_D4 << 8) | DURATION_375,
+ (NOTE_C4 << 8) | DURATION_125,
+ (NOTE_D4 << 8) | DURATION_500,
+ (NOTE_G3 << 8) | DURATION_375,
+ (NOTE_G3 << 8) | DURATION_125,
+ (NOTE_A3 << 8) | DURATION_500,
+ (NOTE_A3 << 8) | DURATION_375,
+ (NOTE_B3 << 8) | DURATION_125,
+ (NOTE_C4 << 8) | DURATION_500,
+ (NOTE_C4 << 8) | DURATION_375,
+ (NOTE_D4 << 8) | DURATION_125,
+ (NOTE_E4 << 8) | DURATION_500,
+ (NOTE_Fb4 << 8) | DURATION_375,
+ (NOTE_G4 << 8) | DURATION_125,
+ (NOTE_A4 << 8) | DURATION_750,
+ (NOTE_D4 << 8) | DURATION_250,
+ (NOTE_B4 << 8) | DURATION_500,
+ (NOTE_A4 << 8) | DURATION_375,
+ (NOTE_G4 << 8) | DURATION_125,
+ (NOTE_A4 << 8) | DURATION_500,
+ (NOTE_Fb4 << 8) | DURATION_375,
+ (NOTE_D4 << 8) | DURATION_125,
+ (NOTE_G4 << 8) | DURATION_500,
+ (NOTE_Fb4 << 8) | DURATION_375,
+ (NOTE_E4 << 8) | DURATION_125,
+ (NOTE_Fb4 << 8) | DURATION_500,
+ (NOTE_B3 << 8) | DURATION_375,
+ (NOTE_B3 << 8) | DURATION_125,
+ (NOTE_E4 << 8) | DURATION_500,
+ (NOTE_D4 << 8) | DURATION_375,
+ (NOTE_C4 << 8) | DURATION_125,
+ (NOTE_D4 << 8) | DURATION_500,
+ (NOTE_G3 << 8) | DURATION_375,
+ (NOTE_G3 << 8) | DURATION_125,
+ (NOTE_G4 << 8) | DURATION_500,
+ (NOTE_Fb4 << 8) | DURATION_375,
+ (NOTE_E4 << 8) | DURATION_125,
+ (NOTE_D4 << 8) | DURATION_250,
+ (NOTE_Fb4 << 8) | DURATION_250,
+ (NOTE_G4 << 8) | DURATION_250,
+ (NOTE_A4 << 8) | DURATION_250,
+ (NOTE_B4 << 8) | DURATION_1000,
+ (NOTE_A4 << 8) | DURATION_250,
+ (NOTE_G4 << 8) | DURATION_250,
+ (NOTE_Fb4 << 8) | DURATION_250,
+ (NOTE_G4 << 8) | DURATION_250,
+ (NOTE_A4 << 8) | DURATION_750,
+ (NOTE_D4 << 8) | DURATION_250,
+ (NOTE_D4 << 8) | DURATION_1000,
+ (NOTE_G4 << 8) | DURATION_1000,
+ (NOTE_Fb4 << 8) | DURATION_250,
+ (NOTE_E4 << 8) | DURATION_250,
+ (NOTE_D4 << 8) | DURATION_250,
+ (NOTE_E4 << 8) | DURATION_250,
+ (NOTE_Fb4 << 8) | DURATION_750,
+ (NOTE_B3 << 8) | DURATION_250,
+ (NOTE_B3 << 8) | DURATION_1000,
+ (NOTE_G4 << 8) | DURATION_500,
+ (NOTE_E4 << 8) | DURATION_375,
+ (NOTE_Fb4 << 8) | DURATION_125,
+ (NOTE_G4 << 8) | DURATION_500,
+ (NOTE_E4 << 8) | DURATION_375,
+ (NOTE_Fb4 << 8) | DURATION_125,
+ (NOTE_G4 << 8) | DURATION_500,
+ (NOTE_E4 << 8) | DURATION_375,
+ (NOTE_G4 << 8) | DURATION_125,
+ (NOTE_C5 << 8) | DURATION_1000,
+ (NOTE_C5 << 8) | DURATION_1000,
+ (NOTE_B4 << 8) | DURATION_250,
+ (NOTE_A4 << 8) | DURATION_250,
+ (NOTE_G4 << 8) | DURATION_250,
+ (NOTE_A4 << 8) | DURATION_250,
+ (NOTE_B4 << 8) | DURATION_750,
+ (NOTE_G4 << 8) | DURATION_250,
+ (NOTE_G4 << 8) | DURATION_1000,
+ (NOTE_A4 << 8) | DURATION_1000,
+ (NOTE_G4 << 8) | DURATION_250,
+ (NOTE_Fb4 << 8) | DURATION_250,
+ (NOTE_E4 << 8) | DURATION_250,
+ (NOTE_Fb4 << 8) | DURATION_250,
+ (NOTE_G4 << 8) | DURATION_750,
+ (NOTE_E4 << 8) | DURATION_250,
+ (NOTE_E4 << 8) | DURATION_1000,
+ (NOTE_G4 << 8) | DURATION_500,
+ (NOTE_Fb4 << 8) | DURATION_375,
+ (NOTE_E4 << 8) | DURATION_125,
+ (NOTE_D4 << 8) | DURATION_500,
+ (NOTE_G3 << 8) | DURATION_375,
+ (NOTE_G3 << 8) | DURATION_125,
+ (NOTE_D4 << 8) | DURATION_1000,
+ (NOTE_E4 << 8) | DURATION_500,
+ (NOTE_Fb4 << 8) | DURATION_500,
+ (NOTE_G4 << 8) | DURATION_2000
 };
 
 #define MELODY_SIZE sizeof(melody) / sizeof(melody_data)
-#define MELODY_TONE(x) melody_tones[melody[x].t]
+#define MELODY_TONE(x) melody_tones[melody[x] >> 8]
 #define MELODY_NO_TONE_DURATION(x) 25
-#define MELODY_DURATION(x) melody_durations[melody[x].d]
+#define MELODY_DURATION(x) melody_durations[melody[x] & 0xFF]
 
 void tone(uint8_t frequency)
 {
