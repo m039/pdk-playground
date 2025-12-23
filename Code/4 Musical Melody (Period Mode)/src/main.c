@@ -44,22 +44,28 @@ void playMelody() {
 }
 
 void main() {
-  PAC |= (1 << BUZZER_BIT);
   PADIER |= (1 << BUTTON_BIT);
   PAPH |= (1 << BUTTON_BIT);
 
   TM2B = 0;
-  TM2C = (uint8_t)(TM2C_MODE_PERIOD | TM2C_OUT_PA3 | TM2C_CLK_IHRC);
   TM2S = 0x0;
 
   uint8_t clkmd = CLKMD;
 
   while (1) {
     if (isButtonActive()) {
+      // Enable buzzer output
+      PAC |= (1 << BUZZER_BIT);
+      TM2C = (uint8_t)(TM2C_MODE_PERIOD | TM2C_OUT_PA3 | TM2C_CLK_IHRC);
+
       CLKMD = clkmd;
       buttonPressed = 1;
       playMelody();
     }
+
+    // Disable buzzer output. (Otherwise it will leak the current.)
+    PAC &= ~(1 << BUZZER_BIT);
+    TM2C = 0;
     
     CLKMD = 0xF4;
     CLKMD &= ~CLKMD_ENABLE_IHRC;

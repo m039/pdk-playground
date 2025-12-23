@@ -166,7 +166,7 @@ const melody_data melody[102] = {
 };
 
 #define MELODY_SIZE sizeof(melody) / sizeof(melody_data)
-#define MELODY_TONE(x) melody_tones[melody[x] >> 8]
+#define MELODY_TONE(x) melody_tones[(melody[x] >> 8) & 0xFF]
 #define MELODY_NO_TONE_DURATION(x) 25
 #define MELODY_DURATION(x) melody_durations[melody[x] & 0xFF]
 
