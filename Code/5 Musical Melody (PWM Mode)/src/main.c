@@ -2,47 +2,37 @@
 #include "auto_sysclock.h"
 #include "delay.h"
 
-// Original notes
-// #define NOTE_C4  262
-// #define NOTE_D4  294
-// #define NOTE_E4  330
-// #define NOTE_F4  349
-// #define NOTE_G4  392
-// #define NOTE_A4  440
-// #define NOTE_B4  494
-// #define NOTE_C5  523
-// #define REST     0
+#define NOTE_C4  (uint32_t)(2 << 5 | 15)  // 260HZ (262)
+#define NOTE_D4  (uint32_t)(2 << 5 | 13)  // 300HZ (294)
+#define NOTE_E4  (uint32_t)(2 << 5 | 12)  // 325Hz (330)
+#define NOTE_F4  (uint32_t)(2 << 5 | 11)  // 355Hz (349)
+#define NOTE_G4  (uint32_t)(2 << 5 | 10)  // 390Hz (392)
+#define NOTE_A4  (uint32_t)(2 << 5 | 9)   // 434Hz (440)
+#define NOTE_B4  (uint32_t)(2 << 5 | 8)   // 488Hz (494)
+#define NOTE_C5  (uint32_t)(2 << 5 | 7)   // 558Hz (523)
+#define REST     (uint32_t)0
 
-#define NOTE_C4  (2 << 5 | 15)  // 260HZ
-#define NOTE_D4  (2 << 5 | 13)  // 300HZ
-#define NOTE_E4  (2 << 5 | 12)  // 325Hz
-#define NOTE_F4  (2 << 5 | 11)  // 355Hz
-#define NOTE_G4  (2 << 5 | 10)  // 390Hz
-#define NOTE_A4  (2 << 5 | 9)   // 434Hz
-#define NOTE_B4  (2 << 5 | 8)   // 488Hz
-#define NOTE_C5  (2 << 5 | 7)   // 558Hz
-#define REST     0
+#define DURATION_4 (uint32_t)(1000 / 4)
+#define DURATION_2 (uint32_t)(1000 / 2)
 
-const uint8_t melody[] = {
-  NOTE_C4, NOTE_C4, NOTE_G4, NOTE_G4, NOTE_A4, NOTE_A4, NOTE_G4, REST,
-  NOTE_F4, NOTE_F4, NOTE_E4, NOTE_E4, NOTE_D4, NOTE_D4, NOTE_C4, REST
-};
+const uint32_t melody[] = {
+  (NOTE_C4 << 24) | (DURATION_4 << 12) | DURATION_4, 
+  (NOTE_C4 << 24) | (DURATION_4 << 12) | DURATION_4,
+  (NOTE_G4 << 24) | (DURATION_4 << 12) | DURATION_4, 
+  (NOTE_G4 << 24) | (DURATION_4 << 12) | DURATION_4, 
+  (NOTE_A4 << 24) | (DURATION_4 << 12) | DURATION_4, 
+  (NOTE_A4 << 24) | (DURATION_4 << 12) | DURATION_4, 
+  (NOTE_G4 << 24) | (DURATION_2 << 12) | DURATION_2, 
+  (REST << 24) | (DURATION_4 << 12) | DURATION_4,
 
-#define D4 LOOP_CTR_32(MS_TO_CYCLES(1000 / 4))
-#define D2 LOOP_CTR_32(MS_TO_CYCLES(1000 / 2))
-
-#define DP4 (D4 * 1.3)
-#define DP2 (D2 * 1.3)
-
-// Note durations: 4 = quarter note, 8 = eighth note, etc.
-const uint32_t noteDurations[] = {
-  D4, D4, D4, D4, D4, D4, D2, D4,
-  D4, D4, D4, D4, D4, D4, D2, D4
-};
-
-const uint32_t notePause[] = {
-  DP4, DP4, DP4, DP4, DP4, DP4, DP2, DP4,
-  DP4, DP4, DP4, DP4, DP4, DP4, DP2, DP4
+  (NOTE_F4 << 24) | (DURATION_4 << 12) | DURATION_4, 
+  (NOTE_F4 << 24) | (DURATION_4 << 12) | DURATION_4, 
+  (NOTE_E4 << 24) | (DURATION_4 << 12) | DURATION_4, 
+  (NOTE_E4 << 24) | (DURATION_4 << 12) | DURATION_4, 
+  (NOTE_D4 << 24) | (DURATION_4 << 12) | DURATION_4, 
+  (NOTE_D4 << 24) | (DURATION_4 << 12) | DURATION_4, 
+  (NOTE_C4 << 24) | (DURATION_2 << 12) | DURATION_2, 
+  (REST << 24) | (DURATION_4 << 12) | DURATION_4
 };
 
 #define PWM_MAX               255
@@ -51,6 +41,12 @@ const uint32_t notePause[] = {
 
 #define TONE_FREQ (16000000 / 64)
 #define MAX_SCALE (32)
+
+void delay(uint16_t delay) {
+  for (uint16_t i = 0; i < delay; i++) {
+    _delay_ms(1);
+  }
+}
 
 void tone(uint8_t frequency) {
   if (frequency == 0) {
@@ -63,12 +59,12 @@ void tone(uint8_t frequency) {
 }
 
 void playMelody() {
-  for (int thisNote = 0; thisNote < 16; thisNote++) {   
-    tone(melody[thisNote]);
-    _delay_loop_32(noteDurations[thisNote]);
+  for (int thisNote = 0; thisNote < (sizeof(melody) / sizeof(uint32_t)); thisNote++) {   
+    tone((melody[thisNote] >> 24) & 0xFF);
+    delay(melody[thisNote] & 0xFFF);
     
     tone(0);
-    _delay_loop_32(notePause[thisNote]);
+    delay((melody[thisNote] >> 12) & 0xFFF);
   }
 }
 
