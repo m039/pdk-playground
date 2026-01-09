@@ -150,8 +150,12 @@ void pullAdc()
   while (!(ADCC & ADCC_IS_ADC_CONV_READY))
     ;
 
+#if CONFIG_PWM_VOLUME
   adc = ADCRH / 16;
-
+#else
+  adc = ADCRH;
+#endif
+  
   ADCC &= ~ADCC_ADC_ENABLE;
 
 #if CONFIG_DEBUG
