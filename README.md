@@ -1,6 +1,6 @@
-# Varios Examples With Padauk MCU
+# Various Examples with Padauk MCU
 
-In this repository, you can find varios examples which are using [pdk-platformio](https://github.com/m039/pdk-platformio).
+In this repository, you can find various examples which are using [pdk-platformio](https://github.com/m039/pdk-platformio).
 
 1. Blink - basic example of blinking a led
 2. BlinkAsm - the same, but in assembler
