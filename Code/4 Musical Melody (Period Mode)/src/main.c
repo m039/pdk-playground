@@ -72,9 +72,9 @@ void main() {
 
 // Startup code - Setup/calibrate system clock
 unsigned char _sdcc_external_startup(void) {
-#ifdef PMS150G
-  PDK_SET_FUSE(FUSE_LVR_2V);
-#endif
+//#ifdef PMS150G
+//  PDK_SET_FUSE(FUSE_LVR_2V);
+//#endif
 
   // Initialize the system clock (CLKMD register) with the IHRC, ILRC, or EOSC clock source and correct divider.
   // The AUTO_INIT_SYSCLOCK() macro uses F_CPU (defined in the Makefile) to choose the IHRC or ILRC clock source and divider.
