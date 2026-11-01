@@ -106,7 +106,7 @@ uint8_t get_vdd(int8_t nvdd)
     }
 
     static const uint8_t voltages[] = {
-        VOLTAGE(0),
+        0xFF,
         VOLTAGE(1),
         VOLTAGE(2),
         VOLTAGE(3),
