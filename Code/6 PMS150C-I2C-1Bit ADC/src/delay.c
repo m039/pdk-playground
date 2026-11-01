@@ -4,15 +4,13 @@
 void _delay_loop_8(uint8_t loop_ctr) {
   loop_ctr; // Ignore unreferenced function argument warning
 __asm
-  // mov    a, #(loop_ctr)                ; 1 cycle
-  // mov    __delay_loop_8_PARM_1, a      ; 1 cycle
-  // call   __delay_loop_8                ; 2 cycles
-00001$:                                   ; 4 cycles per loop
-  dzsn   __delay_loop_8_PARM_1            ;   1 cycle + 1 cycle for final skip
-    goto 00001$                           ;   2 cycles
-  // ret                                  ; 2 cycles
+00001$:
+  dzsn   __delay_loop_8_PARM_1
+    goto 00001$
 __endasm;
 }
+
+#if 0
 
 // 8 cycles per loop, 9 cycles overhead
 void _delay_loop_16(uint16_t loop_ctr) {
@@ -63,3 +61,5 @@ __asm
   // ret                                  ; 2 cycles
 __endasm;
 }
+
+#endif
