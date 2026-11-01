@@ -51,17 +51,18 @@ static uint8_t data;
 static uint8_t len;
 static uint8_t reg_idx;
 static uint8_t byte_offset;
+static uint8_t pause_sda;
 static uint8_t i2c_rw;
 static uint8_t last;
-static uint8_t timeout;
+static uint16_t timeout;
 static uint8_t tick_div;
 static uint8_t vdd_v, pa4_v;
 static uint16_t tick;
 
 /* --- низкоуровневые операции с SDA (открытый сток, защёлка PA = 0) --- */
-#define SDA_LOW()     do { PAC |= SDA_BIT; } while(0)
-#define SDA_HIGH()    do { PAC &= (uint8_t)~SDA_BIT; } while(0)
-#define SDA_RELEASE() do { PAC &= (uint8_t)~SDA_BIT; } while(0)
+#define SDA_LOW()     do { pause_sda = 1; PAC |= SDA_BIT; } while(0)
+#define SDA_HIGH()    do { pause_sda = 1; PAC &= (uint8_t)~SDA_BIT; } while(0)
+#define SDA_RELEASE() do { pause_sda = 0; PAC &= (uint8_t)~SDA_BIT; } while(0)
 
 #define SEND_NEXT_BIT() do { \
     if (data & 0x80) SDA_HIGH(); \
@@ -103,6 +104,7 @@ void main(void)
     state = ST_IDLE;
     reg_idx = 0;
     byte_offset = 0;
+    pause_sda = 0;
     timeout = 0;
     tick_div = 0;
     tick = 0;
@@ -215,8 +217,8 @@ void main(void)
         }
         else if (state != ST_IDLE)
         {
-            /* Watchdog: если SCL не меняется ~300 мкс — сброс шины в ST_IDLE и освобождение SDA */
-            if (++timeout > 200)
+            /* Watchdog: если SCL не меняется ~12 мс — сброс шины в ST_IDLE и освобождение SDA */
+            if (++timeout > 12000)
             {
                 state = ST_IDLE;
                 SDA_RELEASE();
@@ -224,8 +226,8 @@ void main(void)
             }
         }
 
-        /* START / STOP условия: перепад SDA при стабильно высоком SCL */
-        if (sda_change && (PA & SCL_BIT) && !scl_change)
+        /* START / STOP условия: перепад SDA при стабильно высоком SCL (только от мастера) */
+        if (sda_change && !pause_sda && (PA & SCL_BIT) && !scl_change)
         {
             if (PA & SDA_BIT)
             {
@@ -242,13 +244,16 @@ void main(void)
             }
         }
 
-        /* Фоновое измерение напряжений: только пока шина полностью свободна (ST_IDLE) */
+        /* Фоновое измерение напряжений: только пока шина полностью свободна (ST_IDLE) и линии в высоком уровне */
         if (++tick == 0 && state == ST_IDLE)
         {
-            if (++tick_div >= 30) /* Замер раз в ~1.5 секунды */
+            if (++tick_div >= 30) /* Замер раз в ~1.5 - 2 секунды */
             {
-                tick_div = 0;
-                do_measurement();
+                if ((PA & (SCL_BIT | SDA_BIT)) == (SCL_BIT | SDA_BIT))
+                {
+                    tick_div = 0;
+                    do_measurement();
+                }
             }
         }
     }

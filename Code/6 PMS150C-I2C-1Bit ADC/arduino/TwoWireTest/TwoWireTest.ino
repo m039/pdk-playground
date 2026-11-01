@@ -20,7 +20,7 @@ bool readRegister(uint8_t reg, uint8_t *buffer, uint8_t len) {
     Wire.write(reg);
     if (Wire.endTransmission(true) != 0) {
       // Slave busy in ADC measurement (~0.4 ms) or NACKed, wait and retry
-      delay(3);
+      delay(5);
       continue;
     }
 
@@ -28,7 +28,7 @@ bool readRegister(uint8_t reg, uint8_t *buffer, uint8_t len) {
     delayMicroseconds(60);
 
     // 2. Read requested bytes: send START -> [0x2A+R] -> [DATA] -> STOP
-    uint8_t received = Wire.requestFrom(SLAVE_ADDR, len);
+    uint8_t received = Wire.requestFrom((uint8_t)SLAVE_ADDR, len);
     if (received == len) {
       for (uint8_t i = 0; i < len; i++) {
         buffer[i] = Wire.read();
@@ -38,7 +38,7 @@ bool readRegister(uint8_t reg, uint8_t *buffer, uint8_t len) {
 
     // Flush unexpected remaining bytes if any
     while (Wire.available()) Wire.read();
-    delay(3);
+    delay(5);
   }
   return false;
 }
@@ -65,9 +65,9 @@ void loop() {
   uint8_t uid[8] = {0};
 
   bool ok_vdd = readRegister(0, &vdd, 1);
-  delay(10); // Small pause between register queries
+  delay(15); // Small pause between register queries
   bool ok_pa4 = readRegister(1, &pa4, 1);
-  delay(10);
+  delay(15);
   bool ok_uid = readRegister(2, uid, 8);
 
   if (!ok_vdd && !ok_pa4 && !ok_uid) {
