@@ -1,7 +1,7 @@
 #include "adc.h"
 
 /* Case 4: ступень N лестницы = (N+1)/32 * VDD; VDD = 120*32/(N+1) децимилливольт. */
-#define VOLTAGE(n) (120 * 32 / (n + 1))
+#define VOLTAGE(n) (uint8_t)(12. * 32. / (n + 1.))
 
 /*
   Измерение VDD: сколько ступеней лестницы (Case 4) ещё выше bandgap 1.2 В.
@@ -90,7 +90,7 @@ int8_t get_nvpa4(void)
   0 — маркер "вне шкалы" (nvdd = ADC_BELOW_MIN или ADC_ABOVE_MAX),
   не путать с нулевым напряжением.
 */
-uint16_t get_vdd(int8_t nvdd)
+uint8_t get_vdd(int8_t nvdd)
 {
     if (nvdd == ADC_BELOW_MIN)
     {
@@ -105,7 +105,7 @@ uint16_t get_vdd(int8_t nvdd)
         return 0;
     }
 
-    static const uint16_t voltages[] = {
+    static const uint8_t voltages[] = {
         VOLTAGE(0),
         VOLTAGE(1),
         VOLTAGE(2),
@@ -138,7 +138,7 @@ uint16_t get_vdd(int8_t nvdd)
   Возвращает ВЕРХНЮЮ границу интервала (реальный PA4 чуть ниже напечатанного).
   0 — маркер "вне шкалы" (любой из кодов ошибок в аргументах).
 */
-uint16_t get_vpa4(int8_t nvpa4, int8_t nvdd)
+uint8_t get_vpa4(int8_t nvpa4, int8_t nvdd)
 {
     if (nvdd == ADC_BELOW_MIN)
     {
@@ -166,5 +166,5 @@ uint16_t get_vpa4(int8_t nvpa4, int8_t nvdd)
         return 0;
     }
 
-    return (uint16_t)((uint8_t)(nvpa4 + 1) * get_vdd(nvdd)) >> 5;
+    return (uint8_t)((uint16_t)(nvpa4 + 1) * get_vdd(nvdd) >> 5) ;
 }
