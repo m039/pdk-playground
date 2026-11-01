@@ -15,19 +15,17 @@
 // Helper to write register address and read N bytes from slave
 bool readRegister(uint8_t reg, uint8_t *buffer, uint8_t len) {
   for (uint8_t attempt = 0; attempt < 5; attempt++) {
-    // 1. Select register: send START -> [0x2A+W] -> [REG] -> STOP
+    // 1. Select register: send START -> [0x2A+W] -> [REG]
     Wire.beginTransmission(SLAVE_ADDR);
     Wire.write(reg);
-    if (Wire.endTransmission(true) != 0) {
-      // Slave busy in ADC measurement (~0.4 ms) or NACKed, wait and retry
-      delay(5);
+    // Use repeated START first (keeps bus held); if NACKed, release bus with STOP and retry
+    if (Wire.endTransmission(false) != 0) {
+      Wire.endTransmission(true); // Ensure bus is cleared on failure
+      delay(3);
       continue;
     }
 
-    // Micro-delay for slave state machine to return to IDLE
-    delayMicroseconds(60);
-
-    // 2. Read requested bytes: send START -> [0x2A+R] -> [DATA] -> STOP
+    // 2. Read requested bytes: send [0x2A+R] -> [DATA] -> STOP
     uint8_t received = Wire.requestFrom((uint8_t)SLAVE_ADDR, len);
     if (received == len) {
       for (uint8_t i = 0; i < len; i++) {
@@ -36,9 +34,9 @@ bool readRegister(uint8_t reg, uint8_t *buffer, uint8_t len) {
       return true;
     }
 
-    // Flush unexpected remaining bytes if any
+    // Flush any leftover bytes if unexpected count was received
     while (Wire.available()) Wire.read();
-    delay(5);
+    delay(3);
   }
   return false;
 }
@@ -65,9 +63,9 @@ void loop() {
   uint8_t uid[8] = {0};
 
   bool ok_vdd = readRegister(0, &vdd, 1);
-  delay(15); // Small pause between register queries
+  delay(10); // Small pause between register queries
   bool ok_pa4 = readRegister(1, &pa4, 1);
-  delay(15);
+  delay(10);
   bool ok_uid = readRegister(2, uid, 8);
 
   if (!ok_vdd && !ok_pa4 && !ok_uid) {
@@ -75,24 +73,32 @@ void loop() {
   } else {
     // Register 0: VDD
     Serial.print(F("Reg 0 (VDD): "));
-    if (ok_vdd && vdd != 0) {
-      Serial.print(vdd * 100UL);
-      Serial.print(F(" mV (raw: 0x"));
-      if (vdd < 16) Serial.print('0');
-      Serial.print(vdd, HEX);
-      Serial.print(F(")"));
+    if (ok_vdd) {
+      if (vdd != 0) {
+        Serial.print(vdd * 100UL);
+        Serial.print(F(" mV (raw: 0x"));
+        if (vdd < 16) Serial.print('0');
+        Serial.print(vdd, HEX);
+        Serial.print(F(")"));
+      } else {
+        Serial.print(F("0 mV (raw: 0x00)"));
+      }
     } else {
       Serial.print(F("N/A"));
     }
 
     // Register 1: VPA4
     Serial.print(F(" | Reg 1 (VPA4): "));
-    if (ok_pa4 && pa4 != 0) {
-      Serial.print(pa4 * 100UL);
-      Serial.print(F(" mV (raw: 0x"));
-      if (pa4 < 16) Serial.print('0');
-      Serial.print(pa4, HEX);
-      Serial.print(F(")"));
+    if (ok_pa4) {
+      if (pa4 != 0) {
+        Serial.print(pa4 * 100UL);
+        Serial.print(F(" mV (raw: 0x"));
+        if (pa4 < 16) Serial.print('0');
+        Serial.print(pa4, HEX);
+        Serial.print(F(")"));
+      } else {
+        Serial.print(F("0 mV (raw: 0x00)"));
+      }
     } else {
       Serial.print(F("N/A"));
     }

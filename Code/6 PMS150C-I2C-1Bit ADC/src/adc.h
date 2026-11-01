@@ -19,6 +19,6 @@ extern uint8_t get_vdd(int8_t nvdd);
 
 extern int8_t get_nvpa4(void);
 
-extern uint8_t get_vpa4(int8_t nvpa4, int8_t nvdd);
+extern uint8_t get_vpa4(int8_t nvpa4, uint8_t vdd);
 
 #endif

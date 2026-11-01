@@ -5,10 +5,10 @@
   Регистры:
     Регистр 0: VDD (1 байт, единица = 100 мВ, 0 = вне шкалы)
     Регистр 1: PA4 (1 байт, единица = 100 мВ, 0 = вне шкалы)
-    Регистр 2: 8-байтовый уникальный ID (задается при компиляции через DEVICE_UID)
+    Регистр 2: 8-байтовый уникальный ID (задается при компиляции через UID_B0..UID_B7)
 
   Протокол мастера:
-    Запись:  START -> [0x2A+W] -> [REG] -> STOP
+    Запись:  START -> [0x2A+W] -> [REG] -> STOP (или REPEATED START)
     Чтение:  START -> [0x2A+R] -> [BYTE 0] -> ... -> [BYTE N] -> STOP
 
   Ноги: PA0 = SCL (вход, такт ведёт Нана), PA5 = SDA (open-drain).
@@ -26,11 +26,16 @@
 #define SCL_BIT ((uint8_t)(1 << PIN_SCL))
 #define SDA_BIT ((uint8_t)(1 << PIN_SDA))
 
-#ifndef DEVICE_UID
-#define DEVICE_UID { 0x50, 0x44, 0x4B, 0x15, 0x0C, 0xA1, 0xB2, 0xC3 }
+#ifndef UID_B0
+#define UID_B0 0x50
+#define UID_B1 0x44
+#define UID_B2 0x4B
+#define UID_B3 0x15
+#define UID_B4 0x0C
+#define UID_B5 0xA1
+#define UID_B6 0xB2
+#define UID_B7 0xC3
 #endif
-
-static const uint8_t device_uid[8] = DEVICE_UID;
 
 enum
 {
@@ -54,7 +59,7 @@ static uint8_t byte_offset;
 static uint8_t pause_sda;
 static uint8_t i2c_rw;
 static uint8_t last;
-static uint16_t timeout;
+static uint8_t timeout;
 static uint8_t tick_div;
 static uint8_t vdd_v, pa4_v;
 static uint16_t tick;
@@ -74,12 +79,16 @@ static uint8_t load_reg_byte(void)
 {
     if (reg_idx == 0) return vdd_v;
     if (reg_idx == 1) return pa4_v;
-    if (reg_idx == 2)
+    switch (byte_offset++)
     {
-        if (byte_offset < 8)
-        {
-            return device_uid[byte_offset++];
-        }
+        case 0: return UID_B0;
+        case 1: return UID_B1;
+        case 2: return UID_B2;
+        case 3: return UID_B3;
+        case 4: return UID_B4;
+        case 5: return UID_B5;
+        case 6: return UID_B6;
+        case 7: return UID_B7;
     }
     return 0xFF;
 }
@@ -89,7 +98,7 @@ static void do_measurement(void)
     int8_t nvdd = get_nvdd();
     int8_t nvpa4 = get_nvpa4();
     vdd_v = get_vdd(nvdd);
-    pa4_v = get_vpa4(nvpa4, nvdd);
+    pa4_v = get_vpa4(nvpa4, vdd_v);
 }
 
 void main(void)
@@ -217,12 +226,11 @@ void main(void)
         }
         else if (state != ST_IDLE)
         {
-            /* Watchdog: если SCL не меняется ~12 мс — сброс шины в ST_IDLE и освобождение SDA */
-            if (++timeout > 12000)
+            /* Watchdog: если SCL не меняется при активной транзакции — сброс шины в ST_IDLE */
+            if (++timeout == 0)
             {
                 state = ST_IDLE;
                 SDA_RELEASE();
-                timeout = 0;
             }
         }
 
@@ -244,10 +252,10 @@ void main(void)
             }
         }
 
-        /* Фоновое измерение напряжений: только пока шина полностью свободна (ST_IDLE) и линии в высоком уровне */
+        /* Фоновое измерение напряжений: только пока шина полностью свободна (ST_IDLE) */
         if (++tick == 0 && state == ST_IDLE)
         {
-            if (++tick_div >= 30) /* Замер раз в ~1.5 - 2 секунды */
+            if (++tick_div >= 30) /* Замер раз в ~2-3 секунды */
             {
                 if ((PA & (SCL_BIT | SDA_BIT)) == (SCL_BIT | SDA_BIT))
                 {

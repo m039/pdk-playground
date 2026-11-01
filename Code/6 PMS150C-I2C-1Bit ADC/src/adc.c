@@ -2,16 +2,6 @@
 
 static uint8_t i;
 
-/* Case 4: ступень N лестницы = (N+1)/32 * VDD; VDD = 120*32/(N+1) децимилливольт. */
-#define VOLTAGE(n) (uint8_t)((12. * 32. / (n + 1.)) > 255 ? 0xff: (12. * 32. / (n + 1.)))
-
-static const uint8_t voltages[16] = {
-    VOLTAGE(0),  VOLTAGE(1),  VOLTAGE(2),  VOLTAGE(3),
-    VOLTAGE(4),  VOLTAGE(5),  VOLTAGE(6),  VOLTAGE(7),
-    VOLTAGE(8),  VOLTAGE(9),  VOLTAGE(10), VOLTAGE(11),
-    VOLTAGE(12), VOLTAGE(13), VOLTAGE(14), VOLTAGE(15)
-};
-
 /*
   Измерение VDD: сколько ступеней лестницы (Case 4) ещё выше bandgap 1.2 В.
   PLUS  = VINT_R = (N+1)/32 * VDD  — порог РАСТЁТ с ростом N;
@@ -63,18 +53,36 @@ static uint8_t clamp_idx(int8_t val)
 
 /*
   Пересчёт индекса ступени в VDD (децимилливольты, 1 ед. = 100 мВ).
+  Реализовано через switch для экономии ROM и исключения __gptrget библиотеки SDCC.
 */
 uint8_t get_vdd(int8_t nvdd)
 {
-    return voltages[clamp_idx(nvdd)];
+    uint8_t idx = clamp_idx(nvdd);
+    switch (idx) {
+        case 0: return 255;
+        case 1: return 192;
+        case 2: return 128;
+        case 3: return 96;
+        case 4: return 76;
+        case 5: return 64;
+        case 6: return 54;
+        case 7: return 48;
+        case 8: return 42;
+        case 9: return 38;
+        case 10: return 34;
+        case 11: return 32;
+        case 12: return 29;
+        case 13: return 27;
+        case 14: return 25;
+        default: return 24;
+    }
 }
 
 /*
   Пересчёт PA4 в децимилливольты: PA4 = (nvpa4+1)/32 * VDD.
 */
-uint8_t get_vpa4(int8_t nvpa4, int8_t nvdd)
+uint8_t get_vpa4(int8_t nvpa4, uint8_t vdd)
 {
-    uint8_t vdd = voltages[clamp_idx(nvdd)];
     uint8_t count = clamp_idx(nvpa4) + 1;
     uint16_t res = 0;
     do {
