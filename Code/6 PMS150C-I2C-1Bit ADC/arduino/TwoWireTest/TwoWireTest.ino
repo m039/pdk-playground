@@ -1,31 +1,68 @@
 #include <Wire.h>
 
-#define SLAVE_ADDR ((uint8_t)0x2A)
+const uint8_t DEVICE_ADDR = 0x2A;
 
 void setup() {
-  Wire.begin();            // Нана — мастер
-  Wire.setClock(50000);    // слейв-поллер на 16 МГц не тянет 100 кГц
+  Wire.begin();            // Nano: SDA=A4, SCL=A5
+  Wire.setClock(50000);    // 50 кГц — если слейв не тянет 100 кГц
   Serial.begin(115200);
+  Serial.println("==== Start ====");
+}
+
+bool readRegister(uint8_t reg, uint8_t* buffer, uint8_t len) {
+  Wire.beginTransmission(DEVICE_ADDR);
+  Wire.write(reg);
+  if (Wire.endTransmission(false) != 0) {
+    return false;          // ошибка при записи адреса регистра
+  }
+
+  uint8_t received = Wire.requestFrom(DEVICE_ADDR, (uint8_t)len);
+  if (received != len) {
+    return false;          // получили не то количество байт
+  }
+
+  for (uint8_t i = 0; i < len; i++) {
+    buffer[i] = Wire.read();
+  }
+  return true;
 }
 
 void loop() {
-  uint8_t vdd, pa4;
-  bool ok = false;
+  uint8_t vdd, vpa4;
+  uint8_t id[6];
+  bool okVdd = readRegister(0, &vdd, 1);
+  bool okVpa4 = readRegister(1, &vpa4, 1);
+  bool okId = readRegister(2, id, 6);
 
-  for (uint8_t attempt = 0; attempt < 3 && !ok; attempt++) {
-    if (Wire.requestFrom(SLAVE_ADDR, (uint8_t)2) == 2) {
-      vdd = Wire.read();               // единица = 100 мВ
-      pa4 = Wire.read();
-      ok = true;
-    }
-    // неудача = слейв был в измерении (~0.4 мс) — ретрай
+  Serial.print("Reg0: ");
+  if (okVdd) {
+    Serial.print(vdd * 100);
+    Serial.print(" mV");
+  } else {
+    Serial.print("N/A");
   }
 
-  if (!ok)            Serial.println("no reply");
-  else if (!vdd || !pa4) Serial.println("N/A");      // вне шкалы
-  else {
-    Serial.print("VDD: "); Serial.print(vdd * 100UL); Serial.print(" mV  ");
-    Serial.print("PA4: "); Serial.print(pa4 * 100UL); Serial.println(" mV");
+  Serial.print(" | ");
+  Serial.print("Reg1: ");
+
+  if (okVpa4) {
+    Serial.print(vpa4 * 100);
+    Serial.print(" mV");
+  } else {
+    Serial.print("N/A");
   }
+
+  Serial.print(" | ");
+  Serial.print("Reg2: ");
+
+  if (okId) {
+    char buffer[32];
+    sprintf(buffer, "%02X:%02X:%02X:%02X:%02X:%02X", id[0], id[1], id[2], id[3], id[4], id[5]);
+    Serial.print(buffer);
+  } else {
+    Serial.print("N/A");
+  }
+
+  Serial.println();
   delay(1000);
 }
