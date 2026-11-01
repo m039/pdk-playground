@@ -11,7 +11,55 @@ __endasm;
 }
 
 #if 0
-// Unused 16-bit and 32-bit delay loops disabled to save ROM/RAM on PMS150C
-void _delay_loop_16(uint16_t loop_ctr) { (void)loop_ctr; }
-void _delay_loop_32(uint32_t loop_ctr) { (void)loop_ctr; }
+
+// 8 cycles per loop, 9 cycles overhead
+void _delay_loop_16(uint16_t loop_ctr) {
+  loop_ctr; // Ignore unreferenced function argument warning
+__asm
+  // mov    a, #(loop_ctr)                ; 1 cycle
+  // mov    __delay_loop_16_PARM_1+0, a   ; 1 cycle
+  // mov    a, #(loop_ctr<<8)             ; 1 cycle
+  // mov    __delay_loop_16_PARM_1+1, a   ; 1 cycle
+  // call   __delay_loop_16               ; 2 cycles
+00001$:                                   ; 8 cycles per loop
+  nop                                     ;   1 cycle
+  dec   __delay_loop_16_PARM_1+0          ;   1 cycle
+  subc  __delay_loop_16_PARM_1+1          ;   1 cycle
+  mov   a, __delay_loop_16_PARM_1+0       ;   1 cycle
+  or    a, __delay_loop_16_PARM_1+1       ;   1 cycle
+  t1sn.io  f, z                           ;   1 cycle + 1 cycle for final skip
+    goto 00001$                           ;   2 cycles
+  // ret                                  ; 2 cycles
+__endasm;
+}
+
+// 12 cycles per loop, 13 cycles overhead
+void _delay_loop_32(uint32_t loop_ctr) {
+  loop_ctr; // Ignore unreferenced function argument warning
+__asm
+  // mov    a, #(loop_ctr)                ; 1 cycle
+  // mov    __delay_loop_32_PARM_1+0, a   ; 1 cycle
+  // mov    a, #(loop_ctr<<8)             ; 1 cycle
+  // mov    __delay_loop_32_PARM_1+1, a   ; 1 cycle
+  // mov    a, #(loop_ctr<<16)            ; 1 cycle
+  // mov    __delay_loop_32_PARM_1+1, a   ; 1 cycle
+  // mov    a, #(loop_ctr<<24)            ; 1 cycle
+  // mov    __delay_loop_32_PARM_1+1, a   ; 1 cycle
+  // call   __delay_loop_32               ; 2 cycles
+00001$:                                   ; 12 cycles per loop
+  nop                                     ;   1 cycle
+  dec   __delay_loop_32_PARM_1+0          ;   1 cycle
+  subc  __delay_loop_32_PARM_1+1          ;   1 cycle
+  subc  __delay_loop_32_PARM_1+2          ;   1 cycle
+  subc  __delay_loop_32_PARM_1+3          ;   1 cycle
+  mov   a, __delay_loop_32_PARM_1+0       ;   1 cycle
+  or    a, __delay_loop_32_PARM_1+1       ;   1 cycle
+  or    a, __delay_loop_32_PARM_1+2       ;   1 cycle
+  or    a, __delay_loop_32_PARM_1+3       ;   1 cycle
+  t1sn.io  f, z                           ;   1 cycle + 1 cycle for final skip
+    goto 00001$                           ;   2 cycles
+  // ret                                  ; 2 cycles
+__endasm;
+}
+
 #endif
