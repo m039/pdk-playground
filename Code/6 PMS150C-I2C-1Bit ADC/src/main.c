@@ -1,13 +1,19 @@
 /*
-  Измеритель напряжения PMS150C (1-bit ADC) + I2C-слейв "только чтение".
+  Измеритель напряжения PMS150C (1-bit ADC) + I2C-слейв с адресацией регистров.
   Падаук — слейв на адресе 0x2A, Нана — мастер.
-  Нана делает Wire.requestFrom(0x2A, 2) и получает два байта:
-    байт 0 — VDD, байт 1 — PA4;
-  единица = 100 мВ, 0 = "вне шкалы" (лестница кончилась).
+
+  Регистры:
+    Регистр 0: VDD (1 байт, единица = 100 мВ, 0 = вне шкалы)
+    Регистр 1: PA4 (1 байт, единица = 100 мВ, 0 = вне шкалы)
+    Регистр 2: 8-байтовый уникальный ID (задается при компиляции через DEVICE_UID)
+
+  Протокол мастера:
+    Запись:  START -> [0x2A+W] -> [REG] -> STOP (или REPEATED START)
+    Чтение:  START -> [0x2A+R] -> [BYTE 0] -> ... -> [BYTE N] -> STOP
 
   Ноги: PA0 = SCL (вход, такт ведёт Нана), PA5 = SDA (open-drain).
   Подтяжки внешние 4.7к на общий уровень питания шины (слабые PAPH — резерв).
-  F_CPU = 16 МГц обязателен: поллинг фронта при 50 кГц живёт на латентности цикла.
+  F_CPU = 16 МГц / 8 МГц.
 */
 
 #include <pdk/device.h>
@@ -20,24 +26,34 @@
 #define SCL_BIT ((uint8_t)(1 << PIN_SCL))
 #define SDA_BIT ((uint8_t)(1 << PIN_SDA))
 
+#ifndef DEVICE_UID
+#define DEVICE_UID { 0x50, 0x44, 0x4B, 0x15, 0x0C, 0xA1, 0xB2, 0xC3 }
+#endif
+
+static const uint8_t device_uid[8] = DEVICE_UID;
+
 enum
 {
-    ST_IDLE,     /* шина свободна */
-    ST_ADDR,     /* принимаем 7 бит адреса */
-    ST_OP,       /* принят бит R/W, ждём слот ACK */
-    ST_IACK1,    /* спад: прижать SDA (ACK) */
-    ST_IACK2,    /* спад: отпустить и выдать первый бит данных */
-    ST_READDATA, /* выдаём байт мастеру */
-    ST_RACK      /* слот ACK мастера: ACK = продолжаем, NAK = конец */
+    ST_IDLE,        /* 0: шина свободна */
+    ST_ADDR,        /* 1: принимаем 7 бит адреса слейва */
+    ST_OP,          /* 2: принят бит R/W, ждём слот ACK */
+    ST_IACK1,       /* 3: спад: прижать SDA (ACK адреса) */
+    ST_IACK2,       /* 4: спад: отпустить ACK и перейти к приёму/передаче */
+    ST_WRITE_REG,   /* 5: мастер передаёт байт регистра */
+    ST_WACK1,       /* 6: спад: прижать SDA (ACK регистра) */
+    ST_WACK2,       /* 7: спад: отпустить SDA (конец записи регистра) */
+    ST_READDATA,    /* 8: выдаём байт мастеру */
+    ST_RACK         /* 9: слот ACK мастера */
 };
 
 static uint8_t state;
-static uint8_t data;      /* сдвиговый регистр адреса/байта */
-static uint8_t len;       /* счётчик бит */
-static uint8_t ptr;       /* индекс отдаваемого байта */
-static uint8_t pause_sda; /* 1 = линию ведёт слейв, перепады игнорируем */
-static uint8_t i2c_rw;    /* бит чтения/записи из адресного слота */
-static uint8_t last;      /* предыдущее состояние PA */
+static uint8_t data;
+static uint8_t len;
+static uint8_t reg_idx;
+static uint8_t byte_offset;
+static uint8_t pause_sda;
+static uint8_t i2c_rw;
+static uint8_t last;
 static uint8_t vdd_v, pa4_v;
 static uint16_t tick;
 
@@ -52,19 +68,31 @@ static uint16_t tick;
     data <<= 1; \
 } while(0)
 
+static uint8_t load_reg_byte(void)
+{
+    uint8_t res = 0xFF;
+    if (reg_idx == 0 && byte_offset == 0)
+        res = vdd_v;
+    else if (reg_idx == 1 && byte_offset == 0)
+        res = pa4_v;
+    else if (reg_idx == 2 && byte_offset < 8)
+        res = device_uid[byte_offset];
+    byte_offset++;
+    return res;
+}
+
 void main(void)
 {
-    PA &= (uint8_t)~(SDA_BIT | SCL_BIT);  /* защёлки = 0 навсегда */
+    PA &= (uint8_t)~(SDA_BIT | SCL_BIT);  /* защёлки = 0 */
     PAC &= (uint8_t)~(SDA_BIT | SCL_BIT); /* обе линии отпущены */
 
-    /* write-only: пишем целиком. PA0/PA5 — цифровые входы, PA4 отключён
-       (аналоговый вход компаратора, буфер ноги давит утечками). */
+    /* PA0/PA5 — цифровые входы, PA4 отключён (компаратор) */
     PADIER = SCL_BIT | SDA_BIT;
-
-    /* Слабые подтяжки — резерв к внешним 4.7к. */
     PAPH = SCL_BIT | SDA_BIT;
 
     state = ST_IDLE;
+    reg_idx = 0;
+    byte_offset = 0;
     last = PA;
 
     while (1)
@@ -98,12 +126,26 @@ void main(void)
                 {
                     state = ST_IACK2;
                 }
+                else if (state == ST_WRITE_REG)
+                {
+                    data <<= 1;
+                    if (PA & SDA_BIT)
+                        data |= 1;
+                    if (++len >= 8)
+                    {
+                        reg_idx = data;
+                        state = ST_WACK1;
+                    }
+                }
+                else if (state == ST_WACK1)
+                {
+                    state = ST_WACK2;
+                }
                 else if (state == ST_READDATA)
                 {
                     if (len >= 8)
                     {
-                        ptr++;
-                        data = (ptr == 1) ? pa4_v : 0xFF;
+                        data = load_reg_byte();
                         len = 0;
                         state = ST_RACK;
                     }
@@ -113,28 +155,34 @@ void main(void)
                     state = (PA & SDA_BIT) ? ST_IDLE : ST_READDATA;
                 }
             }
-            else /* спад 1->0: управляем SDA */
+            else /* спад 1->0: управление SDA */
             {
-                if (state == ST_IACK1)
+                if (state == ST_IACK1 || state == ST_WACK1)
                 {
-                    if (i2c_rw)
-                        SDA_LOW(); /* ACK только на чтение */
+                    SDA_LOW(); /* ACK на адрес или на байт регистра */
                 }
                 else if (state == ST_IACK2)
                 {
-                    if (!i2c_rw)
+                    SDA_RELEASE();
+                    if (i2c_rw)
                     {
-                        state = ST_IDLE; /* запись NAK-нута, ждём STOP */
+                        state = ST_READDATA;
+                        len = 1;
+                        byte_offset = 0;
+                        data = load_reg_byte();
+                        SEND_NEXT_BIT();
                     }
                     else
                     {
-                        SDA_RELEASE();
-                        state = ST_READDATA;
-                        ptr = 0;
-                        len = 1;
-                        data = vdd_v;
-                        SEND_NEXT_BIT();
+                        state = ST_WRITE_REG;
+                        data = 0;
+                        len = 0;
                     }
+                }
+                else if (state == ST_WACK2)
+                {
+                    SDA_RELEASE();
+                    state = ST_IDLE;
                 }
                 else if (state == ST_READDATA)
                 {
@@ -143,7 +191,7 @@ void main(void)
                 }
                 else if (state == ST_RACK)
                 {
-                    SDA_RELEASE(); /* освобождаем линию к слоту ACK */
+                    SDA_RELEASE();
                 }
             }
         }
@@ -153,31 +201,28 @@ void main(void)
             if (PA & SDA_BIT)
             {
                 state = ST_IDLE; /* STOP */
+                SDA_RELEASE();
             }
             else
             {
-                state = ST_ADDR; /* START (в т.ч. повторный) */
+                state = ST_ADDR; /* START или REPEATED START */
                 len = 0;
-                ptr = 0;
                 data = 0;
+                byte_offset = 0;
             }
         }
 
-        /* Измерение по переполнению тика, только пока шина свободна:
-           во время него (~0.4 мс) слейв слепнет, мастер ретраит. */
+        /* Измерение по переполнению тика во время ST_IDLE */
         if (++tick == 0 && state == ST_IDLE)
         {
             int8_t nvdd = get_nvdd();
             int8_t nvpa4 = get_nvpa4();
-            vdd_v = get_vdd(nvdd); /* 0 = вне шкалы */
+            vdd_v = get_vdd(nvdd);
             pa4_v = get_vpa4(nvpa4, nvdd);
         }
     }
 }
 
-/*
-  Startup code — настройка и калибровка системного клока.
-*/
 unsigned char _sdcc_external_startup(void)
 {
     AUTO_INIT_SYSCLOCK();
