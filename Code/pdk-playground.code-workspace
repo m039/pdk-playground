@@ -1,0 +1,23 @@
+{
+	"folders": [
+		{
+			"path": "1 Blink"
+		},
+		{
+			"path": "2 BlinkAsm"
+		},
+		{
+			"path": "3 Led PWM"
+		},
+		{
+			"path": "4 Musical Melody (Period Mode)"
+		},
+		{
+			"path": "5 Musical Melody (PWM Mode)"
+		},
+		{
+			"path": "6 PMS150C-I2C-Measure VDD"
+		}
+	],
+	"settings": {}
+}
