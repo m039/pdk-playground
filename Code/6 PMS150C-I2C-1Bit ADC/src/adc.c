@@ -1,7 +1,10 @@
 #include "adc.h"
 
+
+static uint8_t i;
+
 /* Case 4: ступень N лестницы = (N+1)/32 * VDD; VDD = 120*32/(N+1) децимилливольт. */
-#define VOLTAGE(n) (uint8_t)(12. * 32. / (n + 1.))
+#define VOLTAGE(n) (uint8_t)((12. * 32. / (n + 1.)) > 255 ? 0xff: (12. * 32. / (n + 1.)))
 
 /*
   Измерение VDD: сколько ступеней лестницы (Case 4) ещё выше bandgap 1.2 В.
@@ -24,7 +27,7 @@ int8_t get_nvdd(void)
     // Внутренние входы: ножки не участвуют, утечки не влияют.
     GPCC = (uint8_t)(GPCC_COMP_ENABLE | GPCC_COMP_MINUS_BANDGAP_1V2 | GPCC_COMP_PLUS_VINT_R);
 
-    for (int8_t i = 0; i < 16; i++)
+    for (i = 0; i < 16; i++)
     {
         // GPCS пишем ЦЕЛИКОМ: биты case [5:4] и уровня [3:0] write-only,
         // read-modify-write затёр бы выбор case нулями.
@@ -63,7 +66,7 @@ int8_t get_nvpa4(void)
 {
     GPCC = (uint8_t)(GPCC_COMP_ENABLE | GPCC_COMP_MINUS_VINT_R | GPCC_COMP_PLUS_PA4);
 
-    for (int8_t i = 0; i < 16; i++)
+    for (i = 0; i < 16; i++)
     {
         GPCS = (1 << 5) | (1 << 4) | i; // Case 4
         _delay_us(10);                  // установление компаратора после смены порога
@@ -106,7 +109,7 @@ uint8_t get_vdd(int8_t nvdd)
     }
 
     static const uint8_t voltages[] = {
-        0xFF,
+        VOLTAGE(0),
         VOLTAGE(1),
         VOLTAGE(2),
         VOLTAGE(3),
@@ -166,5 +169,15 @@ uint8_t get_vpa4(int8_t nvpa4, int8_t nvdd)
         return 0;
     }
 
-    return (uint8_t)((uint16_t)(nvpa4 + 1) * get_vdd(nvdd) >> 5) ;
+    uint8_t vdd = get_vdd(nvdd);
+
+    // Вместо "тяжелого" умножения uint16_t делаем быстрый цикл сложений.
+    // Так как (nvpa4 + 1) максимум равен 16, этот цикл займет минимум места в ROM.
+    uint16_t res = 0;
+    i = nvpa4 + 1;
+    do {
+        res += vdd;
+    } while (--i);
+
+    return (uint8_t)(res >> 5); // Сдвиг на 32 компилятор делает очень эффективно
 }
