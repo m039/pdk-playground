@@ -15,38 +15,46 @@
 // Helper to write register address and read N bytes from slave
 bool readRegister(uint8_t reg, uint8_t *buffer, uint8_t len) {
   for (uint8_t attempt = 0; attempt < 5; attempt++) {
-    // 1. Select register
+    // 1. Select register: send START -> [0x2A+W] -> [REG] -> STOP
     Wire.beginTransmission(SLAVE_ADDR);
     Wire.write(reg);
-    if (Wire.endTransmission(false) != 0) { // repeated START
-      // Fallback with STOP then START if repeated start was NACKed
-      Wire.beginTransmission(SLAVE_ADDR);
-      Wire.write(reg);
-      if (Wire.endTransmission(true) != 0) {
-        delay(2);
-        continue;
-      }
+    if (Wire.endTransmission(true) != 0) {
+      // Slave busy in ADC measurement (~0.4 ms) or NACKed, wait and retry
+      delay(3);
+      continue;
     }
 
-    // 2. Read requested bytes
-    if (Wire.requestFrom(SLAVE_ADDR, len) == len) {
+    // Micro-delay for slave state machine to return to IDLE
+    delayMicroseconds(60);
+
+    // 2. Read requested bytes: send START -> [0x2A+R] -> [DATA] -> STOP
+    uint8_t received = Wire.requestFrom(SLAVE_ADDR, len);
+    if (received == len) {
       for (uint8_t i = 0; i < len; i++) {
         buffer[i] = Wire.read();
       }
       return true;
     }
 
-    // Measurement on Padauk takes ~0.4ms; retry if slave was busy
-    delay(2);
+    // Flush unexpected remaining bytes if any
+    while (Wire.available()) Wire.read();
+    delay(3);
   }
   return false;
 }
 
 void setup() {
   Wire.begin();         // Arduino Nano is I2C Master
-  Wire.setClock(50000); // 50 kHz clock for software-polled slave on 16MHz/8MHz
+  Wire.setClock(50000); // 50 kHz clock for software-polled slave
+
+  // Enable bus timeout if supported by Arduino Wire core to prevent hardware lockup
+#if defined(WIRE_HAS_TIMEOUT)
+  Wire.setWireTimeout(25000, true); // 25ms timeout, reset bus on timeout
+#endif
+
   Serial.begin(115200);
   while (!Serial && millis() < 3000);
+
   Serial.println(F("=== Padauk PMS150C I2C Register Reader ==="));
   Serial.println(F("Reg 0: VDD | Reg 1: VPA4 | Reg 2: 8-byte UID"));
 }
@@ -57,7 +65,9 @@ void loop() {
   uint8_t uid[8] = {0};
 
   bool ok_vdd = readRegister(0, &vdd, 1);
+  delay(10); // Small pause between register queries
   bool ok_pa4 = readRegister(1, &pa4, 1);
+  delay(10);
   bool ok_uid = readRegister(2, uid, 8);
 
   if (!ok_vdd && !ok_pa4 && !ok_uid) {
@@ -98,6 +108,7 @@ void loop() {
     } else {
       Serial.print(F("N/A"));
     }
+
     Serial.println();
   }
 
