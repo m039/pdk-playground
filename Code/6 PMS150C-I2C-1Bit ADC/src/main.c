@@ -10,7 +10,7 @@
   без деления и float — всё сводится к сдвигам и таблице констант.
 */
 
-#define DEBUG 1
+#define DEBUG 0
 
 #include <pdk/device.h>
 #include "auto_sysclock.h"

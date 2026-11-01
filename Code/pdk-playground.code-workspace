@@ -16,7 +16,7 @@
 			"path": "5 Musical Melody (PWM Mode)"
 		},
 		{
-			"path": "6 PMS150C-I2C-Measure VDD"
+			"path": "6 PMS150C-I2C-1Bit ADC"
 		}
 	],
 	"settings": {}
