@@ -69,3 +69,7 @@ pio run -t upload
    --- PMS150C I2C ADC Monitor ---
    [#1] VDD: 5.00 V (5000 mV, raw: 0x32) | PA4: 3.30 V (3300 mV, raw: 0x21) | UID: 1A 2B 3C 4D 5E 6F
    ```
+
+---
+
+*Code comments and README.md thoroughly prepared by Gemini (G).*
