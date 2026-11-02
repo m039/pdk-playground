@@ -19,11 +19,14 @@ A collection of tested, ready-to-flash firmware examples and hardware experiment
 
 ## Getting Started
 
-### Prerequisites
-
-1. **[PlatformIO](https://platformio.org/)** (VSCode extension or CLI `pio`).
-2. **[pdk-platformio](https://github.com/m039/pdk-platformio)** platform integration (automatically fetched by PlatformIO).
-3. **Hardware Programmer:** [Easy PDK Programmer](https://github.com/free-pdk/easy-pdk-programmer-software) (or compatible hardware) to program and calibrate Padauk ICs over the serial interface.
+1. **Prerequisites:**
+   - **VS Code** with the **[PlatformIO IDE](https://platformio.org/install/ide?install=vscode)** extension.
+   - An **[Easy PDK Programmer](https://github.com/free-pdk/easy-pdk-programmer-software)** (or compatible programmer) connected via USB.
+2. **Open Workspace:**
+   - Open [`Code/pdk-playground.code-workspace`](Code/pdk-playground.code-workspace) in VS Code to load all example projects into your workspace.
+3. **Build & Upload:**
+   - Select the desired project environment in the PlatformIO project switcher (bottom status bar).
+   - Click **Build** (`✓`) or **Upload** (`→`) on the PlatformIO toolbar. PlatformIO will automatically fetch the [`pdk-platformio`](https://github.com/m039/pdk-platformio) platform package on first run.
 
 ## References
 
