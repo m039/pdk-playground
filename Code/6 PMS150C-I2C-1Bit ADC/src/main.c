@@ -87,7 +87,7 @@ void main(void)
     state = ST_IDLE;
     last = PA;
 
-    for (uint8_t i = 0; i < 6; i++) {
+    for (uint8_t i = 0; i < sizeof(ID) / sizeof(ID[0]); i++) {
         reg[2 + i] = ID[i];
     }
 
