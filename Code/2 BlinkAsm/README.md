@@ -1,28 +1,30 @@
-Example from https://github.com/free-pdk/free-pdk-examples/tree/master/BlinkLED
+# Blink LED (Assembly Language)
 
-# BlinkLED Example
+Demonstrates LED blinking on pin PA4 written directly in pure **Padauk Assembly** (`.asm`), using a 32-bit decrement timing loop (`_delay_loop_32`) and direct register bit manipulation (`set1.io` / `set0.io`).
 
-This example demonstrates just about the simplest thing you can do: it blinks an LED, on for one second, then off for one second, repeatedly.
+> **Hardware note:** Configured for **PFS154** (pdk14 architecture), easily adaptable to other Padauk MCUs supported by SDCC assembler (`sdasz80`/`sdas`).
 
-Note: This example uses a timing loop to delay for one second.
-See the [BlinkLED_WithIRQ](../BlinkLED_WithIRQ) example for a timer based approach. 
+## How It Works
 
-> _**Inspiration**: This example was inspired by the public domain [Blink](https://www.arduino.cc/en/Tutorial/Blink) example from Arduino._
+- Configures pin PA4 as an output (`set1.io __pac, #4`).
+- Toggles PA4 state between HIGH (`set1.io __pa, #4`) and LOW (`set0.io __pa, #4`).
+- Implements delays via a 4-byte counter loop calling `_delay_loop_32`.
 
-### Hardware Circuit
-By default, the LED is placed on the PA4 pin* (Port A, Bit 4) with a current sink configuration.
+## Wiring
 
-This means the negative leg (or cathode) of the LED is connected to the digital pin of the IC, and the positive leg (or anode) of the LED is connected through a current limiting resistor to VDD.
-- When the digital pin is LOW, current will flow through the LED and it will light up.
-- When the digital pin is HIGH, no current will flow and the LED will turn off.
+| Pin | Function | Connection |
+|:---|:---|:---|
+| **PA4** | LED | Connect to LED through a current-limiting resistor |
+| **VDD** | Power | 2.0V–5.5V DC supply |
+| **GND** | Ground | Common Ground |
 
->_*Note: Please consult the pinout for the specific microcontroller package used to identify the correct physical pin._
+## Usage
 
-### Compatibility
-This example should run on every currently known Padauk microcontroller that is supported by SDCC and the Easy PDK Programmer.
-A device specific include file (pdk/device/*.h) may need to be supplied for less common devices.
+Build and upload firmware using PlatformIO:
+```bash
+pio run -t upload
+```
 
-### Build Stats
-- Code Size: 87 words (174 bytes)
-- RAM usage: 7 bytes + stack
-  - All 7 bytes are used as method call parameters for the timing loop routines defined in the [delay.h](../include/delay.h) include file.
+---
+
+*README.md thoroughly prepared by Gemini (G).*

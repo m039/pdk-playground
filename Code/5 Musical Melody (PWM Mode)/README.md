@@ -1,28 +1,31 @@
-Example from https://github.com/free-pdk/free-pdk-examples/tree/master/BlinkLED
+# Musical Melody with PWM Volume Control
 
-# BlinkLED Example
+Plays melodies ("Twinkle, Twinkle, Little Star") on a passive piezo buzzer using Timer 2 in PWM mode on pin **PA3**, with real-time volume adjustment controlled by an analog potentiometer sampled on pin **PB3** via the internal 8-bit ADC.
 
-This example demonstrates just about the simplest thing you can do: it blinks an LED, on for one second, then off for one second, repeatedly.
+> **Hardware note:** Configured for **PFS122** (`board = pfs122`, 16 MHz CPU), which features built-in hardware ADC channels.
 
-Note: This example uses a timing loop to delay for one second.
-See the [BlinkLED_WithIRQ](../BlinkLED_WithIRQ) example for a timer based approach. 
+## How It Works
 
-> _**Inspiration**: This example was inspired by the public domain [Blink](https://www.arduino.cc/en/Tutorial/Blink) example from Arduino._
+- **Tone & Volume via PWM:** Timer 2 is configured in PWM mode on pin **PA3** (`TM2C_MODE_PWM | TM2C_OUT_PA3`). Pitch frequency is adjusted via `TM2S`, and volume is modulated using PWM duty cycle.
+- **ADC Volume Input:** Samples analog channel AD3 on pin **PB3** (`ADCC_CH_AD3_PB3`) in real time, mapping potentiometer position to audio volume.
+- **Optional Debugging:** Includes software UART output via Timer 2 interrupt for logging ADC readings.
 
-### Hardware Circuit
-By default, the LED is placed on the PA4 pin* (Port A, Bit 4) with a current sink configuration.
+## Wiring
 
-This means the negative leg (or cathode) of the LED is connected to the digital pin of the IC, and the positive leg (or anode) of the LED is connected through a current limiting resistor to VDD.
-- When the digital pin is LOW, current will flow through the LED and it will light up.
-- When the digital pin is HIGH, no current will flow and the LED will turn off.
+| Pin | Function | Connection |
+|:---|:---|:---|
+| **PA3** (TM2PWM) | Buzzer Output | Passive Piezo Buzzer (+) pin; (-) pin to GND |
+| **PB3** (AD3) | ADC Input | Potentiometer wiper (0V .. VDD) |
+| **VDD** | Power | 3.3V–5.0V DC supply |
+| **GND** | Ground | Common Ground |
 
->_*Note: Please consult the pinout for the specific microcontroller package used to identify the correct physical pin._
+## Usage
 
-### Compatibility
-This example should run on every currently known Padauk microcontroller that is supported by SDCC and the Easy PDK Programmer.
-A device specific include file (pdk/device/*.h) may need to be supplied for less common devices.
+Build and upload firmware using PlatformIO:
+```bash
+pio run -t upload
+```
 
-### Build Stats
-- Code Size: 87 words (174 bytes)
-- RAM usage: 7 bytes + stack
-  - All 7 bytes are used as method call parameters for the timing loop routines defined in the [delay.h](../include/delay.h) include file.
+---
+
+*README.md thoroughly prepared by Gemini (G).*
