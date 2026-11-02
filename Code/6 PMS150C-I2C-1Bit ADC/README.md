@@ -6,31 +6,25 @@ Measures supply voltage (VDD) and an analog pin (PA4) using the PMS150C internal
 
 Works in tandem with the companion Arduino sketch in **`arduino/TwoWireTest/TwoWireTest.ino`** (I2C master monitor).
 
-## Comparator Case 4 Calculations & Ranges
+## Comparator Case 4 & Measurable Values
 
-In Case 4, the internal resistor ladder generates:
+The comparator uses **Case 4** with internal resistor ladder reference:
 $$V_{INT\_R} = \frac{N + 1}{32} \times V_{DD} \quad (N = 0 \dots 15)$$
 
-### 1. VDD Measurement (vs 1.20 V Bandgap Reference)
-Trip condition occurs when $V_{INT\_R} = 1.20\text{ V} \implies V_{DD} = \frac{1.20\text{ V} \times 32}{N + 1} = \frac{38.4\text{ V}}{N + 1}$
-- **Measurable range:** **2.40 V to 5.49 V** (within PMS150C 5.5 V max rating)
-- **10 discrete steps:**
-  - $N=15$: **2.40 V** *(minimum detectable; $< 2.40\text{ V}$ reports out of range)*
-  - $N=14$: **2.56 V**
-  - $N=13$: **2.74 V**
-  - $N=12$: **2.95 V**
-  - $N=11$: **3.20 V**
-  - $N=10$: **3.49 V**
-  - $N=9$: **3.84 V**
-  - $N=8$: **4.27 V**
-  - $N=7$: **4.80 V**
-  - $N=6$: **5.49 V** *(near 5.50 V max operating limit; $N \le 5$ corresponds to $> 6.4\text{ V}$)*
+> *Note:* For complete comparator specifications and alternate cases, refer to the Padauk PMS150C datasheet.
 
-### 2. PA4 Analog Pin Measurement (vs $V_{INT\_R}$)
-- **Measurable range:** $\frac{1}{32} V_{DD}$ to $\frac{16}{32} V_{DD}$ (**$0.031 \times V_{DD}$ to $0.50 \times V_{DD}$**)
-  - At $V_{DD} = 5.0\text{ V}$: **0.16 V to 2.50 V** (~156 mV / step)
-  - At $V_{DD} = 3.3\text{ V}$: **0.10 V to 1.65 V** (~103 mV / step)
-- Voltages $> 0.5 \times V_{DD}$ exceed ladder range; voltages $< 0.031 \times V_{DD}$ report below minimum.
+### Returned Values:
+
+- **VDD (`get_vdd()`, Register `0x00`)**:
+  - Measurable range: **2.40 V to 5.49 V**
+  - Discrete returned values (in 100 mV units): `24`, `25`, `27`, `29`, `32`, `34`, `38`, `42`, `48`, `54`
+  - Returns `0` if below 2.40 V (out of detectable range).
+
+- **PA4 Analog Pin (`get_vpa4()`, Register `0x01`)**:
+  - Measurable range: **$0.031 \times V_{DD}$ to $0.50 \times V_{DD}$** (up to half of $V_{DD}$)
+    - At $V_{DD} = 5.0\text{ V}$: **0.16 V to 2.50 V** (values `1` to `25` in 100 mV units)
+    - At $V_{DD} = 3.3\text{ V}$: **0.10 V to 1.65 V** (values `1` to `16` in 100 mV units)
+  - Returns `0` if voltage is outside the detectable ladder range.
 
 ## Wiring
 
@@ -48,7 +42,7 @@ Trip condition occurs when $V_{INT\_R} = 1.20\text{ V} \implies V_{DD} = \frac{1
 
 | Reg | Name | Size | Value |
 |:---:|:---|:---:|:---|
-| `0x00` | VDD | 1 B | Supply voltage in 100 mV units (24 to 55; `0` = out of range) |
+| `0x00` | VDD | 1 B | Supply voltage in 100 mV units (24 to 54; `0` = out of range) |
 | `0x01` | VPA4 | 1 B | PA4 voltage in 100 mV units (up to $0.5 \times V_{DD}$; `0` = out of range) |
 | `0x02` | UID | 6 B | Unique chip ID from calibration words |
 
