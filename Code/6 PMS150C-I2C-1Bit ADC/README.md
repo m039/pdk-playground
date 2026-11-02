@@ -18,13 +18,11 @@ $$V_{INT\_R} = \frac{N + 1}{32} \times V_{DD} \quad (N = 0 \dots 15)$$
 - **VDD (`get_vdd()`, Register `0x00`)**:
   - Measurable range: **2.40 V to 5.49 V**
   - Discrete returned values (in 100 mV units): `24`, `25`, `27`, `29`, `32`, `34`, `38`, `42`, `48`, `54`
-  - Returns `0` if below 2.40 V (out of detectable range).
 
 - **PA4 Analog Pin (`get_vpa4()`, Register `0x01`)**:
   - Measurable range: **$0.031 \times V_{DD}$ to $0.50 \times V_{DD}$** (up to half of $V_{DD}$)
     - At $V_{DD} = 5.0\text{ V}$: **0.16 V to 2.50 V** (values `1` to `25` in 100 mV units)
     - At $V_{DD} = 3.3\text{ V}$: **0.10 V to 1.65 V** (values `1` to `16` in 100 mV units)
-  - Returns `0` if voltage is outside the detectable ladder range.
 
 ## Wiring
 
