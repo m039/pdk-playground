@@ -21,7 +21,7 @@ A collection of tested, ready-to-flash firmware examples and hardware experiment
 
 1. **Prerequisites:**
    - **VS Code** with the **[PlatformIO IDE](https://platformio.org/install/ide?install=vscode)** extension.
-   - An **[Easy PDK Programmer](https://github.com/free-pdk/easy-pdk-programmer-software)** (or compatible programmer) connected via USB.
+   - An **[Easy PDK Programmer](https://github.com/free-pdk/easy-pdk-programmer-software)** (with development firmware) connected via USB.
 2. **Open Workspace:**
    - Open [`Code/pdk-playground.code-workspace`](Code/pdk-playground.code-workspace) in VS Code to load all example projects into your workspace.
 3. **Build & Upload:**
