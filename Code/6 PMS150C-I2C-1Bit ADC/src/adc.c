@@ -3,7 +3,8 @@
 static uint8_t i;
 
 /* Case 4: ступень N лестницы = (N+1)/32 * VDD; VDD = 120*32/(N+1) децимилливольт. */
-#define VOLTAGE(n) (uint8_t)((12. * 32. / (n + 1.)) > 255 ? 0xff: (12. * 32. / (n + 1.)))
+#define _VOLTAGE(n) (12. * 32. / (n + 1.))
+#define VOLTAGE(n) (uint8_t)(_VOLTAGE(n) > 255 ? 0xff: _VOLTAGE(n))
 
 static const uint8_t voltages[16] = {
     VOLTAGE(0),  VOLTAGE(1),  VOLTAGE(2),  VOLTAGE(3),
