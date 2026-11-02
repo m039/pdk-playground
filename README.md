@@ -1,6 +1,6 @@
 # Various Examples with Padauk MCU
 
-A collection of tested, ready-to-flash firmware examples and hardware experiments for ultra-low-cost Padauk 8-bit microcontrollers (PFS154, PMS150C, PFS122, PMS150G), built with [pdk-platformio](https://github.com/m039/pdk-platformio) and the SDCC toolchain.
+A collection of examples and hardware experiments for ultra-low-cost Padauk 8-bit microcontrollers (PFS154, PMS150C, PFS122, PMS150G), built with [pdk-platformio](https://github.com/m039/pdk-platformio) and the SDCC toolchain.
 
 ---
 
