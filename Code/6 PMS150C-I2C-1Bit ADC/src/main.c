@@ -40,7 +40,7 @@ static uint8_t pause_sda; /* 1 = линию ведёт слейв, перепа�
 static uint8_t i2c_rw;    /* бит чтения/записи из адресного слота */
 static uint8_t last;      /* предыдущее состояние PA */
 static uint16_t tick;
-static uint8_t reg[8];
+static uint8_t reg[2 + (sizeof(ID)/sizeof(ID[0]))];
 
 /* --- низкоуровневые операции с SDA (открытый сток, защёлка PA = 0) --- */
 #define SDA_LOW()       \
