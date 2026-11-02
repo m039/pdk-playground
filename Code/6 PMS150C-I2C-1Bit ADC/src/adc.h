@@ -14,7 +14,9 @@
 #define ADC_ABOVE_MAX (-2)
 
 /*
-  Measures VDD using the internal comparator with 1.2V bandgap reference and resistor ladder.
+  Measures VDD using the internal comparator with 1.2V bandgap reference (Case 4).
+  Thresholds: VDD = 38.4V / (N + 1).
+  Measurable range: 2.40 V (N=15) to 5.49 V (N=6). Values < 2.40V return ADC_BELOW_MIN.
   Returns ladder step index (0-15) or an error code (< 0).
 */
 extern int8_t get_nvdd(void);
@@ -26,7 +28,10 @@ extern int8_t get_nvdd(void);
 extern uint8_t get_vdd(int8_t nvdd);
 
 /*
-  Measures analog voltage on PA4 using the internal resistor ladder.
+  Measures analog voltage on PA4 using the internal resistor ladder (Case 4).
+  Measurable range: (1/32)*VDD to (16/32)*VDD (0.031*VDD to 0.50*VDD).
+    - At VDD = 5.0V: ~0.16 V to 2.50 V (~156 mV/step)
+    - At VDD = 3.3V: ~0.10 V to 1.65 V (~103 mV/step)
   Returns ladder step index (0-15) or an error code (< 0).
 */
 extern int8_t get_nvpa4(void);

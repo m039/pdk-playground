@@ -3,10 +3,29 @@
 static uint8_t i;
 
 /*
-  Comparator Case 4:
-  Ladder step N voltage: VINT_R = (N + 1) / 32 * VDD.
-  When VINT_R equals the 1.2V bandgap reference: VDD = 1.2V * 32 / (N + 1).
-  In decivolts (units of 100 mV = 0.1 V): VDD = 12 * 32 / (N + 1).
+  Comparator Case 4 (GPCS[5:4] = 0b11, GPCS[3:0] = N in 0..15):
+  Internal resistor ladder voltage: VINT_R = (N + 1) / 32 * VDD (range: 1/32 to 16/32 of VDD).
+
+  1. VDD Measurement (compared against 1.20V internal bandgap reference):
+     Switching condition: VINT_R = 1.20V  =>  VDD = 1.20V * 32 / (N + 1) = 38.4V / (N + 1)
+     Measurable VDD range within MCU operating limits (2.40V .. 5.50V):
+       N = 15: 2.40 V (minimum detectable VDD; < 2.40V returns ADC_BELOW_MIN)
+       N = 14: 2.56 V
+       N = 13: 2.74 V
+       N = 12: 2.95 V
+       N = 11: 3.20 V
+       N = 10: 3.49 V
+       N =  9: 3.84 V
+       N =  8: 4.27 V
+       N =  7: 4.80 V
+       N =  6: 5.49 V (near 5.50V max operating rating)
+       N <= 5: > 6.40 V (exceeds PMS150C absolute maximum VDD)
+
+  2. PA4 Analog Measurement (compared against VINT_R):
+     Measurable PA4 range: (1/32)*VDD to (16/32)*VDD = 0.031*VDD to 0.50*VDD
+     - At VDD = 5.0V: 0.16 V to 2.50 V (step ~156 mV)
+     - At VDD = 3.3V: 0.10 V to 1.65 V (step ~103 mV)
+     Inputs > VDD/2 return ADC_ABOVE_MAX; inputs < VDD/32 return ADC_BELOW_MIN.
 */
 #define _VOLTAGE(n) (12. * 32. / (n + 1.))
 #define VOLTAGE(n) ((uint8_t)(_VOLTAGE(n) > 255 ? 0xFF : _VOLTAGE(n)))

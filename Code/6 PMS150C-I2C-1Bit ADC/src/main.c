@@ -1,11 +1,11 @@
 /*
-  PMS150C Voltage Meter (1-Bit ADC via Comparator) + I2C Slave.
+  PMS150C Voltage Meter (1-Bit ADC via Comparator Case 4) + I2C Slave.
   The Padauk MCU acts as an I2C slave at address 0x2A; Arduino Nano is the master.
 
-  Register map:
-    Reg 0: VDD (units of 100 mV; 0 = out of range)
-    Reg 1: VPA4 (units of 100 mV; 0 = out of range)
-    Reg 2..7: 6-byte Unique ID (defined at compile time)
+  Comparator Case 4 voltage ranges:
+    - VDD (Reg 0): 2.40 V to 5.49 V (10 steps: 2.40, 2.56, 2.74, 2.95, 3.20, 3.49, 3.84, 4.27, 4.80, 5.49 V)
+    - PA4 (Reg 1): (1/32)*VDD to (16/32)*VDD (0.16 V .. 2.50 V at 5V; 0.10 V .. 1.65 V at 3.3V)
+    - Reg 2..7: 6-byte Unique ID (defined at compile time)
 
   Pins:
     PA0 = SCL (input, driven by master clock)
