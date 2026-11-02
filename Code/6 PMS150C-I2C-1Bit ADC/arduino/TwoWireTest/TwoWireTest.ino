@@ -12,8 +12,8 @@
     - Clock Speed: 50 kHz (provides required timing margin for software I2C slave)
 
   Register Map:
-    - Register 0: VDD voltage (units of 100 mV; 0 = out of ladder range)
-    - Register 1: VPA4 voltage (units of 100 mV; 0 = out of ladder range)
+    - Register 0: VDD voltage (units of 100 mV)
+    - Register 1: VPA4 voltage (units of 100 mV)
     - Register 2: Unique ID (6 bytes)
 */
 

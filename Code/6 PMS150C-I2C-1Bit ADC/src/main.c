@@ -112,7 +112,7 @@ void main(void)
         {
             int8_t nvdd = get_nvdd();
             int8_t nvpa4 = get_nvpa4();
-            reg[0] = get_vdd(nvdd);         /* 0 = out of range */
+            reg[0] = get_vdd(nvdd);
             reg[1] = get_vpa4(nvpa4, nvdd);
         }
 
@@ -225,12 +225,12 @@ void main(void)
         {
             if (current & SDA_BIT)
             {
-                /* SDA rising edge while SCL high: STOP condition */
+                /* SDA rising edge while SCL high (0 -> 1): STOP condition */
                 state = ST_IDLE;
             }
             else
             {
-                /* SDA falling edge while SCL high: START / REPEATED START condition */
+                /* SDA falling edge while SCL high (1 -> 0): START / REPEATED START condition */
                 if (state == ST_IDLE)
                 {
                     ptr = 0; /* Reset register pointer on fresh START */
