@@ -13,7 +13,7 @@
     PA4 = Analog comparator input for VPA4 measurement
 
   Pull-ups: External 4.7k resistors to bus VDD (internal weak PAPH pull-ups as backup).
-  F_CPU: 16 MHz required to poll edges reliably with 50 kHz I2C clock.
+  F_CPU: 8 MHz required to poll edges reliably with 50 kHz I2C clock.
 */
 
 #include <pdk/device.h>
