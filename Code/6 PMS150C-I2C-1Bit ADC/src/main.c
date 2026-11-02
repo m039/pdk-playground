@@ -27,7 +27,7 @@ enum
     ST_IDLE, /* шина свободна */
     ST_ADDR, /* принимаем 7 бит адреса */
     ST_ACK,
-    ST_READDATA, /* выдаём байт мастеру */
+    ST_READ, /* выдаём байт мастеру */
     ST_WRITE,
     ST_RACK /* слот ACK мастера: ACK = продолжаем, NAK = конец */
 };
@@ -134,7 +134,7 @@ void main(void)
                 {
                     if (i2c_rw)
                     {
-                        state = ST_READDATA;
+                        state = ST_READ;
                         data = reg[ptr];
                         len = 0;
                     }
@@ -145,7 +145,7 @@ void main(void)
                         data = 0;
                     }
                 }
-                else if (state == ST_READDATA)
+                else if (state == ST_READ)
                 {
                     if (len >= 8)        /* 8-й бит мастер только что сэмплировал */
                         state = ST_RACK; /* теперь его очередь отвечать */
@@ -178,7 +178,7 @@ void main(void)
                             data = reg[ptr++];
                         }
                         len = 0;
-                        state = ST_READDATA;
+                        state = ST_READ;
                     }
                 }
             }
@@ -192,7 +192,7 @@ void main(void)
                 {
                     SDA_RELEASE();
                 }
-                else if (state == ST_READDATA)
+                else if (state == ST_READ)
                 {
                     SEND_NEXT_BIT();
                     len++;
@@ -208,18 +208,19 @@ void main(void)
         {
             if (current & SDA_BIT)
             {
-                // 0 -> 1
-                state = ST_IDLE; /* STOP */
+                // фронт 0->1: STOP
+                state = ST_IDLE;
             }
             else
             {
+                // спад 1->0: START | RESTART
+
                 // Если не повтор, начинаем сначала.
                 if (state == ST_IDLE) {
                     ptr = 0;
                 }
 
-                // 1 -> 0
-                state = ST_ADDR; /* START (в т.ч. повторный) */
+                state = ST_ADDR;
                 len = 0;
                 data = 0;
             }
