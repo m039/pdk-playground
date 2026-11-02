@@ -1,28 +1,28 @@
-Example from https://github.com/free-pdk/free-pdk-examples/tree/master/BlinkLED
+# Blink LED (C Language)
 
-# BlinkLED Example
+Demonstrates basic LED blinking (1 second ON, 1 second OFF) in a software timing loop written in C using SDCC and `pdk-platformio`.
 
-This example demonstrates just about the simplest thing you can do: it blinks an LED, on for one second, then off for one second, repeatedly.
+> **Hardware note:** Configured for **PFS154**, but compatible with virtually all Padauk MCUs including **PMS150C**.
 
-Note: This example uses a timing loop to delay for one second.
-See the [BlinkLED_WithIRQ](../BlinkLED_WithIRQ) example for a timer based approach. 
+## Hardware Setup
 
-> _**Inspiration**: This example was inspired by the public domain [Blink](https://www.arduino.cc/en/Tutorial/Blink) example from Arduino._
+The LED is connected in an **active-LOW (current-sink)** configuration on pin **PA4**. The microcontroller pulls the pin LOW to light the LED and HIGH (or input) to turn it off.
 
-### Hardware Circuit
-By default, the LED is placed on the PA4 pin* (Port A, Bit 4) with a current sink configuration.
+## Wiring
 
-This means the negative leg (or cathode) of the LED is connected to the digital pin of the IC, and the positive leg (or anode) of the LED is connected through a current limiting resistor to VDD.
-- When the digital pin is LOW, current will flow through the LED and it will light up.
-- When the digital pin is HIGH, no current will flow and the LED will turn off.
+| Pin | Function | Connection |
+|:---|:---|:---|
+| **PA4** | LED Sink | Connect to LED Cathode (negative leg); Anode connects to VDD through a 1 kΩ resistor |
+| **VDD** | Power | 2.0V–5.5V DC supply |
+| **GND** | Ground | Common Ground |
 
->_*Note: Please consult the pinout for the specific microcontroller package used to identify the correct physical pin._
+## Usage
 
-### Compatibility
-This example should run on every currently known Padauk microcontroller that is supported by SDCC and the Easy PDK Programmer.
-A device specific include file (pdk/device/*.h) may need to be supplied for less common devices.
+Build and upload firmware using PlatformIO:
+```bash
+pio run -t upload
+```
 
-### Build Stats
-- Code Size: 87 words (174 bytes)
-- RAM usage: 7 bytes + stack
-  - All 7 bytes are used as method call parameters for the timing loop routines defined in the [delay.h](../include/delay.h) include file.
+---
+
+*Code comments and README.md thoroughly prepared by Gemini (G).*

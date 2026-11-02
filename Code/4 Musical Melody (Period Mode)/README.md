@@ -1,28 +1,35 @@
-Example from https://github.com/free-pdk/free-pdk-examples/tree/master/BlinkLED
+# Musical Melody (Period Mode)
 
-# BlinkLED Example
+Plays musical melodies (such as "Komarovo") on a passive piezo buzzer using hardware Timer 2 (TM2) in frequency period mode (`TM2C_MODE_PERIOD`). Supports ultra-low-power sleep with button wake-up.
 
-This example demonstrates just about the simplest thing you can do: it blinks an LED, on for one second, then off for one second, repeatedly.
+> **Hardware note:** Includes multi-target configurations in `platformio.ini` for **PFS154**, **PMS150G**, **PFS122**, and **PMS150C**.
 
-Note: This example uses a timing loop to delay for one second.
-See the [BlinkLED_WithIRQ](../BlinkLED_WithIRQ) example for a timer based approach. 
+## How It Works
 
-> _**Inspiration**: This example was inspired by the public domain [Blink](https://www.arduino.cc/en/Tutorial/Blink) example from Arduino._
+- **Tone Generation:** Uses Timer 2 in Period Mode (`TM2C_MODE_PERIOD | TM2C_OUT_PA3`) on pin **PA3** to generate square waves corresponding to musical notes.
+- **Button Control:** Monitors a pushbutton on **PA4** (with internal pull-up `PAPH`).
+- **Low-Power Sleep:** When playback finishes, the MCU enters deep sleep (`stopsys`), consuming minimal quiescent current until the button is pressed again.
 
-### Hardware Circuit
-By default, the LED is placed on the PA4 pin* (Port A, Bit 4) with a current sink configuration.
+## Wiring
 
-This means the negative leg (or cathode) of the LED is connected to the digital pin of the IC, and the positive leg (or anode) of the LED is connected through a current limiting resistor to VDD.
-- When the digital pin is LOW, current will flow through the LED and it will light up.
-- When the digital pin is HIGH, no current will flow and the LED will turn off.
+| Pin | Function | Connection |
+|:---|:---|:---|
+| **PA3** (TM2PWM) | Buzzer Output | Passive Piezo Buzzer (+) pin; (-) pin to GND |
+| **PA4** | Pushbutton | Pushbutton connected to GND (uses internal pull-up) |
+| **VDD** | Power | 2.0V–5.5V DC supply |
+| **GND** | Ground | Common Ground |
 
->_*Note: Please consult the pinout for the specific microcontroller package used to identify the correct physical pin._
+## Usage
 
-### Compatibility
-This example should run on every currently known Padauk microcontroller that is supported by SDCC and the Easy PDK Programmer.
-A device specific include file (pdk/device/*.h) may need to be supplied for less common devices.
+Build and upload firmware for your specific MCU target:
+```bash
+# Upload to PFS154
+pio run -e pfs154 -t upload
 
-### Build Stats
-- Code Size: 87 words (174 bytes)
-- RAM usage: 7 bytes + stack
-  - All 7 bytes are used as method call parameters for the timing loop routines defined in the [delay.h](../include/delay.h) include file.
+# Upload to PMS150C
+pio run -e pms150c -t upload
+```
+
+---
+
+*Code comments and README.md thoroughly prepared by Gemini (G).*
