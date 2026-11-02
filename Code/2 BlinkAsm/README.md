@@ -14,7 +14,7 @@ Demonstrates LED blinking on pin PA4 written directly in pure **Padauk Assembly*
 
 | Pin | Function | Connection |
 |:---|:---|:---|
-| **PA4** | LED Output | Connect to LED Anode through a 1 kΩ current-limiting resistor; Cathode to GND |
+| **PA4** | LED | Connect to LED through a current-limiting resistor |
 | **VDD** | Power | 2.0V–5.5V DC supply |
 | **GND** | Ground | Common Ground |
 
