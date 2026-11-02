@@ -1,6 +1,6 @@
 # PMS150C I2C 1-Bit ADC & Arduino Monitor
 
-This project demonstrates using the ultra-low-cost **Padauk PMS150C** microcontroller as an **I2C slave peripheral** that measures analog voltages using its internal comparator and internal resistor ladder as a 1-bit successive ADC.
+This project demonstrates using the ultra-low-cost **Padauk PMS150C** microcontroller (tested on **PFS154**, but optimized to fit the memory constraints of **PMS150C**) as an **I2C slave peripheral** that measures analog voltages using its internal comparator and internal resistor ladder as a 1-bit successive ADC.
 
 > **Important**: This project consists of **two companion firmwares that work together**:
 > 1. **Padauk PMS150C Firmware** (in `src/`): Implements the 1-bit ADC engine, calibration reading, and a bit-banged I2C slave interface.
@@ -52,11 +52,13 @@ Connect the Padauk PMS150C (SOP-8 package) to the Arduino (e.g. Arduino Nano) as
 
 ## Getting Started
 
-### 1. Flash Padauk PMS150C
+### 1. Flash Padauk PMS150C (or PFS154)
 Build and upload using PlatformIO with the [pdk-platformio](https://github.com/m039/pdk-platformio) environment:
 ```bash
 pio run -t upload
 ```
+> *Note on hardware*: The firmware was tested on a flash-based **PFS154** during development, but is strictly optimized to comfortably fit into the 1 KW ROM / 64 B RAM limit of the OTP **PMS150C**.
+
 
 ### 2. Flash Arduino Monitor
 1. Open `arduino/TwoWireTest/TwoWireTest.ino` in the Arduino IDE.
