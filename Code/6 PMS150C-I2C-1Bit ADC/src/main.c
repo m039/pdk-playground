@@ -39,9 +39,8 @@ static uint8_t len;       /* счётчик бит */
 static uint8_t pause_sda; /* 1 = линию ведёт слейв, перепады игнорируем */
 static uint8_t i2c_rw;    /* бит чтения/записи из адресного слота */
 static uint8_t last;      /* предыдущее состояние PA */
-static uint8_t vdd_v, pa4_v;
 static uint16_t tick;
-static uint8_t reg;
+static uint8_t reg[8];
 
 /* --- низкоуровневые операции с SDA (открытый сток, защёлка PA = 0) --- */
 #define SDA_LOW()       \
@@ -88,6 +87,10 @@ void main(void)
     state = ST_IDLE;
     last = PA;
 
+    for (uint8_t i = 0; i < 6; i++) {
+        reg[2 + i] = ID[i];
+    }
+
     while (1)
     {
         /* Измерение по переполнению тика, только пока шина свободна:
@@ -96,8 +99,8 @@ void main(void)
         {
             int8_t nvdd = get_nvdd();
             int8_t nvpa4 = get_nvpa4();
-            vdd_v = get_vdd(nvdd); /* 0 = вне шкалы */
-            pa4_v = get_vpa4(nvpa4, nvdd);
+            reg[0] = get_vdd(nvdd); /* 0 = вне шкалы */
+            reg[1] = get_vpa4(nvpa4, nvdd);
         }
 
         uint8_t current = PA;
@@ -132,22 +135,7 @@ void main(void)
                     if (i2c_rw)
                     {
                         state = ST_READDATA;
-                        ptr = 0;
-                        if (reg == 0)
-                        {
-                            data = vdd_v;
-                        }
-                        else if (reg == 1)
-                        {
-                            data = pa4_v;
-                        }
-                        else if (reg == 2) {
-                            data = ID[0];
-                        }
-                        else
-                        {
-                            data = 0;
-                        }
+                        data = reg[ptr];
                         len = 0;
                     }
                     else
@@ -171,7 +159,8 @@ void main(void)
 
                     if (len >= 8)
                     {
-                        reg = data;
+                        // Здесь data равна номер регистра. Пока он совпадает с указателем.
+                        ptr = data;
                         state = ST_ACK;
                     }
                 }
@@ -183,8 +172,10 @@ void main(void)
                     }
                     else                     /* ACK — мастер хочет ещё байт */
                     {
-                        if ((reg == 2) && (ptr < 6)) {
-                            data = ID[ptr++];
+                        if (ptr >= sizeof(reg) / sizeof(reg[0])) {
+                            data = 0xFF;
+                        } else {
+                            data = reg[ptr++];
                         }
                         len = 0;
                         state = ST_READDATA;
@@ -222,10 +213,14 @@ void main(void)
             }
             else
             {
+                // Если не повтор, начинаем сначала.
+                if (state == ST_IDLE) {
+                    ptr = 0;
+                }
+
                 // 1 -> 0
                 state = ST_ADDR; /* START (в т.ч. повторный) */
                 len = 0;
-                ptr = 0;
                 data = 0;
             }
         }
