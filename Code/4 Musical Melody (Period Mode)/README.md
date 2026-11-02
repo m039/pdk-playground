@@ -32,4 +32,4 @@ pio run -e pms150c -t upload
 
 ---
 
-*Code comments and README.md thoroughly prepared by Gemini (G).*
+*README.md thoroughly prepared by Gemini (G).*

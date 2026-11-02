@@ -27,4 +27,4 @@ pio run -t upload
 
 ---
 
-*Code comments and README.md thoroughly prepared by Gemini (G).*
+*README.md thoroughly prepared by Gemini (G).*
