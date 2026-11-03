@@ -17,6 +17,9 @@
 		},
 		{
 			"path": "6 PMS150C-I2C-1Bit ADC"
+		},
+		{
+			"path": "7 Voltage Supervisor"
 		}
 	],
 	"settings": {}
