@@ -14,6 +14,7 @@ A collection of examples and hardware experiments for ultra-low-cost Padauk 8-bi
 | 4 | [Musical Melody (Period Mode)](Code/4%20Musical%20Melody%20(Period%20Mode)) | PFS154, PMS150C, PMS150G, PFS122 | Melody player on a piezo buzzer with button wake-up from `stopsys` deep sleep |
 | 5 | [Musical Melody (PWM Mode)](Code/5%20Musical%20Melody%20(PWM%20Mode)) | PFS122 | Tone generation with real-time volume adjustment via analog potentiometer |
 | 6 | [PMS150C-I2C-1Bit ADC](Code/6%20PMS150C-I2C-1Bit%20ADC) | PMS150C (tested on PFS154) | 1-bit comparator ADC voltage meter (VDD & PA4) + I2C slave with companion Arduino master |
+| 7 | [Voltage Supervisor](Code/7%20Voltage%20Supervisor) | PFS154 / PMS150C | Supply voltage supervisor with configurable threshold and hysteresis using internal comparator |
 
 ---
 
