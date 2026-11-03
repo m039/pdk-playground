@@ -28,8 +28,6 @@ $$V_{INT\_R} = \frac{N + 1}{32} \times V_{DD} = 1.20\text{ V} \implies V_{DD} = 
 | `ADC_VOLTAGE_4V80` | `48` | $N = 7$  | 4.80 V |
 | `ADC_VOLTAGE_5V49` | `54` | $N = 6$  | 5.49 V (near 5.50V max rating) |
 
-*(Values $N \le 5$ correspond to $V_{DD} > 6.4\text{ V}$, which exceeds the maximum operating voltage of the MCU).*
-
 ---
 
 ## Configuration
@@ -54,4 +52,6 @@ Uncomment and set `ADC_VOLTAGE_THRESHOLD`:
 #define ADC_VOLTAGE_THRESHOLD ADC_VOLTAGE_3V20
 ```
 
-> **Compile-time validation:** If `ADC_VOLTAGE_THRESHOLD` is not specified or an invalid value is supplied, compilation will immediately fail with a descriptive `#error` directive explaining valid options.
+---
+
+*Code comments and README.md thoroughly prepared by Gemini (G).*
