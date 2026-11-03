@@ -2,6 +2,8 @@
 
 A supply voltage supervisor (brownout detector / power-good monitor) implemented on Padauk microcontrollers (PFS154, PMS150C) using the internal analog comparator with the internal resistor ladder and 1.20V bandgap reference (**Comparator Case 4**).
 
+> **Hardware note (Power Consumption):** For PMS150C, the analog comparator does not function in sleep mode (`stopsys`) and cannot wake up the core. Therefore, to continuously monitor voltage, the MCU remains active in slow mode: the internal high-speed oscillator (IHRC) is disabled and the system clock is switched to the internal low-speed oscillator (ILRC) with maximum divider to reduce frequency to a minimum. This keeps total active current consumption at **~50 µA maximum** (MCU core running on ILRC ~15–20 µA + comparator, 1.2V bandgap reference, and internal resistor ladder ~25–30 µA).
+
 The output pin **PA4** indicates voltage status:
 - **HIGH (`1`)**: Supply voltage $V_{DD} \ge V_{threshold}$.
 - **LOW (`0`)**: Supply voltage $V_{DD} < V_{threshold} - V_{hysteresis}$.
