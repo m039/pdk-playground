@@ -6,6 +6,8 @@ A collection of examples and hardware experiments for ultra-low-cost Padauk 8-bi
 
 ## Projects Overview
 
+> The first 5 examples are covered in the article: [m039.ru/post/pdk-melodies/](https://m039.ru/post/pdk-melodies/).
+
 | # | Project | Target MCU | Description |
 |:---:|:---|:---|:---|
 | 1 | [Blink](Code/1%20Blink) | PFS154 / All | Basic LED blinking in C (1 s interval) |
@@ -31,6 +33,7 @@ A collection of examples and hardware experiments for ultra-low-cost Padauk 8-bi
 
 ## References
 
+- [m039.ru/post/pdk-melodies/](https://m039.ru/post/pdk-melodies/) - Article covering the first 5 examples
 - [pdk-platformio](https://github.com/m039/pdk-platformio) - PlatformIO platform for Padauk microcontrollers
 - [Free-PDK](https://github.com/free-pdk) - Open-source tools, includes, and documentation for Padauk MCUs
 - [Easy PDK Programmer](https://github.com/free-pdk/easy-pdk-programmer-software) - In-circuit programmer and clock calibrator
