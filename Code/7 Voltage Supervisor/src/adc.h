@@ -16,6 +16,7 @@
 /*
   Measurable VDD threshold constants for Comparator Case 4 (in decivolts, 1 unit = 100 mV):
   Switching condition: VINT_R = 1.20V => VDD = 1.20V * 32 / (N + 1) = 38.4V / (N + 1)
+  Note: Threshold voltages may vary with a 1-2% tolerance depending on operating clock frequency.
   Use one of these for ADC_VOLTAGE_THRESHOLD:
 */
 #define ADC_VOLTAGE_2V40 24 /* N = 15: 2.40 V (minimum detectable VDD) */

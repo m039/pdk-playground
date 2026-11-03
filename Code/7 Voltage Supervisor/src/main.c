@@ -8,6 +8,9 @@
     build_flags = -DADC_VOLTAGE_THRESHOLD=ADC_VOLTAGE_3V20
   or uncomment and set it directly below.
 
+  Note: Threshold voltages may vary with a 1-2% tolerance depending
+  on the operating frequency of the microcontroller.
+
   Available threshold constants from adc.h (Comparator Case 4):
     ADC_VOLTAGE_2V40 (24) - 2.40 V (N = 15)
     ADC_VOLTAGE_2V56 (25) - 2.56 V (N = 14)

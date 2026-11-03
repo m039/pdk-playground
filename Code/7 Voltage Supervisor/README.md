@@ -30,6 +30,8 @@ $$V_{INT\_R} = \frac{N + 1}{32} \times V_{DD} = 1.20\text{ V} \implies V_{DD} = 
 | `ADC_VOLTAGE_4V80` | `48` | $N = 7$  | 4.80 V |
 | `ADC_VOLTAGE_5V49` | `54` | $N = 6$  | 5.49 V (near 5.50V max rating) |
 
+> *Note:* Threshold voltages may vary by approximately 1–2% depending on the operating frequency of the microcontroller.
+
 ---
 
 ## Configuration
