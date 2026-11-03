@@ -2,7 +2,40 @@
 #include "auto_sysclock.h"
 #include "adc.h"
 
-#define ADC_VOLTAGE_THRESHOLD 32 // 3.2V
+/*
+  Voltage Supervisor Threshold Configuration:
+  Configure ADC_VOLTAGE_THRESHOLD in platformio.ini (recommended):
+    build_flags = -DADC_VOLTAGE_THRESHOLD=ADC_VOLTAGE_3V20
+  or uncomment and set it directly below.
+
+  Available threshold constants from adc.h (Comparator Case 4):
+    ADC_VOLTAGE_2V40 (24) - 2.40 V (N = 15)
+    ADC_VOLTAGE_2V56 (25) - 2.56 V (N = 14)
+    ADC_VOLTAGE_2V74 (27) - 2.74 V (N = 13)
+    ADC_VOLTAGE_2V95 (29) - 2.95 V (N = 12)
+    ADC_VOLTAGE_3V20 (32) - 3.20 V (N = 11)
+    ADC_VOLTAGE_3V49 (34) - 3.49 V (N = 10)
+    ADC_VOLTAGE_3V84 (38) - 3.84 V (N =  9)
+    ADC_VOLTAGE_4V27 (42) - 4.27 V (N =  8)
+    ADC_VOLTAGE_4V80 (48) - 4.80 V (N =  7)
+    ADC_VOLTAGE_5V49 (54) - 5.49 V (N =  6)
+*/
+// #define ADC_VOLTAGE_THRESHOLD ADC_VOLTAGE_3V20
+
+#ifndef ADC_VOLTAGE_THRESHOLD
+#error "ADC_VOLTAGE_THRESHOLD is not defined! Please select a threshold in platformio.ini (e.g. build_flags = -DADC_VOLTAGE_THRESHOLD=ADC_VOLTAGE_3V20) or define it in main.c."
+#elif !((ADC_VOLTAGE_THRESHOLD == ADC_VOLTAGE_2V40) || \
+        (ADC_VOLTAGE_THRESHOLD == ADC_VOLTAGE_2V56) || \
+        (ADC_VOLTAGE_THRESHOLD == ADC_VOLTAGE_2V74) || \
+        (ADC_VOLTAGE_THRESHOLD == ADC_VOLTAGE_2V95) || \
+        (ADC_VOLTAGE_THRESHOLD == ADC_VOLTAGE_3V20) || \
+        (ADC_VOLTAGE_THRESHOLD == ADC_VOLTAGE_3V49) || \
+        (ADC_VOLTAGE_THRESHOLD == ADC_VOLTAGE_3V84) || \
+        (ADC_VOLTAGE_THRESHOLD == ADC_VOLTAGE_4V27) || \
+        (ADC_VOLTAGE_THRESHOLD == ADC_VOLTAGE_4V80) || \
+        (ADC_VOLTAGE_THRESHOLD == ADC_VOLTAGE_5V49))
+#error "Invalid ADC_VOLTAGE_THRESHOLD value! Must be one of the Case 4 comparator thresholds from adc.h: ADC_VOLTAGE_2V40 (24), ADC_VOLTAGE_2V56 (25), ADC_VOLTAGE_2V74 (27), ADC_VOLTAGE_2V95 (29), ADC_VOLTAGE_3V20 (32), ADC_VOLTAGE_3V49 (34), ADC_VOLTAGE_3V84 (38), ADC_VOLTAGE_4V27 (42), ADC_VOLTAGE_4V80 (48), ADC_VOLTAGE_5V49 (54)."
+#endif
 
 #define CMP_OUT_BIT 4
 
