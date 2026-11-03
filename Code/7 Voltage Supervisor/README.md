@@ -8,7 +8,7 @@ The output pin **PA4** indicates voltage status:
 - **HIGH (`1`)**: Supply voltage $V_{DD} \ge V_{threshold}$.
 - **LOW (`0`)**: Supply voltage $V_{DD} < V_{threshold} - V_{hysteresis}$.
 
-The comparator dynamically updates its ladder tap between `nvdd` and `nvdd - 1` to create clean switching with hardware hysteresis and prevent oscillations near the boundary.
+The comparator dynamically updates its ladder tap between `nvdd` and `nvdd - 1` to create clean switching with software hysteresis and prevent oscillations near the boundary.
 
 ---
 
