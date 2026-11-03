@@ -26,7 +26,7 @@ $$V_{INT\_R} = \frac{N + 1}{32} \times V_{DD} \quad (N = 0 \dots 15)$$
 
 ## Wiring
 
-| PMS150C (SOP-8) | Arduino Nano | Description |
+| PMS150C | Arduino Nano | Description |
 |:---|:---|:---|
 | **PA0** (Pin 1) | **A5** (SCL) | 4.7 kΩ pull-up to VCC required |
 | **PA5** (Pin 6) | **A4** (SDA) | 4.7 kΩ pull-up to VCC required |
