@@ -2,7 +2,7 @@
 
 Measures supply voltage (VDD) and an analog pin (PA4) using the PMS150C internal comparator with internal resistor ladder (Case 4), exposing readings over an emulated I2C slave interface.
 
-> **Hardware note:** Tested on **PFS154** during development, but size-optimized to fit into the OTP **PMS150C** (1 KW ROM / 64 B RAM).
+> **Hardware note:** Tested on **PFS154** during development, but size-optimized to fit into the OTP **PMS150C** (1 KW ROM / 64 B RAM). The microcontroller currently responds reliably at **8 MHz**; it does not work at lower clock frequencies.
 
 Works in tandem with the companion Arduino sketch in **`arduino/TwoWireTest/TwoWireTest.ino`** (I2C master monitor).
 
@@ -34,7 +34,8 @@ $$V_{INT\_R} = \frac{N + 1}{32} \times V_{DD} \quad (N = 0 \dots 15)$$
 | **VDD** (Pin 4) | **5V** | Power (2.4V–5.5V) |
 | **GND** (Pin 2) | **GND** | Ground |
 
-*I2C Speed:* **50 kHz** (`Wire.setClock(50000)`).
+*I2C Speed:* **50 kHz** (`Wire.setClock(50000)`).  
+*CPU Clock:* **8 MHz** (microcontroller currently responds reliably at 8 MHz; lower clock speeds do not work).
 
 ## I2C Registers (Address `0x2A`)
 
