@@ -1,4 +1,22 @@
 
+/*
+  PMS150C I2C Unique ID (UID) Chip Emulator
+
+  Emulates a dedicated I2C slave (address 0x2B) that returns a 6-byte Unique ID (UID)
+  from register 0x00.
+
+  Hardware & Pinout (PMS150C / PFS154):
+    - PA0 (Pin 1): SCL (requires 4.7 kΩ external pull-up to VCC)
+    - PA5 (Pin 6): SDA (requires 4.7 kΩ external pull-up to VCC)
+    - VDD (Pin 4): 2.4V – 5.5V DC supply
+    - GND (Pin 2): Ground
+
+  Power Management:
+    - Enters ultra-low-power deep sleep ('stopsys') after 65536 idle passes on the bus.
+    - Switches clock to ILRC and turns off IHRC before sleeping (< 0.5 µA standby current).
+    - Resumes instantly upon SCL/SDA pin-change (PADIER) and restores 8 MHz IHRC (clkmd_old).
+*/
+
 #include <pdk/device.h>
 #include <stdint.h>
 #include "auto_sysclock.h"
@@ -9,6 +27,7 @@
 #define SCL_BIT ((uint8_t)(1 << PIN_SCL))
 #define SDA_BIT ((uint8_t)(1 << PIN_SDA))
 
+/* 6-byte Unique ID payload returned on I2C read requests */
 const uint8_t ID[6] = { 0x22, 0x55, 0x33, 0x11, 0x33, 0x53 };
 
 /* I2C Slave state machine states */
@@ -69,14 +88,12 @@ void main(void)
     PA &= (uint8_t)~(SDA_BIT | SCL_BIT);  /* Output latches set to 0 permanently */
     PAC &= (uint8_t)~(SDA_BIT | SCL_BIT); /* Both lines released (input mode) */
 
-    /* Wake-up from stopexe enabled ONLY for SCL (PA0) and SDA (PA5):
-       any toggle on these pins resumes the CPU. All other pins must not. */
+    /* Wake-up from stopsys enabled ONLY for SCL (PA0) and SDA (PA5):
+       any toggle on these pins wakes the CPU. All other pins must not. */
     PADIER = SCL_BIT | SDA_BIT;
     PBDIER = 0x00; /* Port B must not wake the MCU */
 
-    /* Fast wake-up: short wake latency on IO toggle.
-       With stopexe the IHRC keeps running, so the fast-wakeup
-       requirement (IHRC enabled) is satisfied. */
+    /* Fast wake-up: reduces oscillator warm-up time upon wake-up */
     MISC |= MISC_FAST_WAKEUP_ENABLE;
 
     /* Enable weak internal pull-ups as backup for external 4.7k resistors */
@@ -90,10 +107,10 @@ void main(void)
     {
         if (state == ST_IDLE)
         {
-            /* Stay awake for 256 idle passes after the last bus activity,
-               then enter Power-Save mode. CLKMD is NOT touched: stopexe only
-               stops the system clock, oscillators keep running and wake-up
-               is almost immediate. */
+            /* Stay awake for 65536 idle passes after the last bus activity,
+               then enter deep sleep (stopsys). Clock is switched to ILRC and
+               IHRC is disabled for sub-microamp standby. Upon wake-up by
+               SCL/SDA toggle, IHRC is restored to clkmd_old. */
             if (++tick == 0)
             {
                 CLKMD = 0xF4;
