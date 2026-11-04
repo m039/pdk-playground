@@ -26,7 +26,7 @@ The microcontroller operates at **8 MHz** internal high-speed oscillator (IHRC) 
 
 Both I2C lines are open-drain and require external 4.7 kΩ pull-up resistors to VCC.
 
-| PMS150C (SOP-8) | Arduino Nano | Description | Notes |
+| PMS150C | Arduino Nano | Description | Notes |
 |:---|:---|:---|:---|
 | **Pin 1 (PA0)** | **A5** (SCL) | I2C Clock line | 4.7 kΩ pull-up to 5V required |
 | **Pin 6 (PA5)** | **A4** (SDA) | I2C Data line | 4.7 kΩ pull-up to 5V required |
@@ -40,7 +40,7 @@ Both I2C lines are open-drain and require external 4.7 kΩ pull-up resistors to 
 Because the PMS150C enters `stopsys` deep sleep when idle:
 
 1. **Wake-Up Ping:** The master transmits a dummy address packet (`Wire.beginTransmission(0x2B); Wire.endTransmission(true);`).
-2. **Wake Latency:** The master waits **1 ms** (`delay(1)`, range 1–125 ms works) allowing the PMS150C 8 MHz IHRC oscillator to start up, stabilize, and enter `ST_IDLE`.
+2. **Wake Latency:** The master waits **1 ms** (`delay(1)`, range 1–125 ms works) allowing the PMS150C 8 MHz IHRC oscillator to start up.
 3. **Register Read:** The master transmits the requested register index (`0x00`) and requests 6 bytes (`Wire.requestFrom(0x2B, 6)`).
 4. **Data:** The slave streams the 6-byte UID sequence (`ID[0..5]`).
 5. **Idle Timeout:** If no bus activity occurs for 65536 loop cycles, the slave switches clock to ILRC, turns off IHRC, and re-enters `stopsys`.
