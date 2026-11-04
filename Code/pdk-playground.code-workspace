@@ -20,6 +20,9 @@
 		},
 		{
 			"path": "7 Voltage Supervisor"
+		},
+		{
+			"path": "8 UID Chip"
 		}
 	],
 	"settings": {}
