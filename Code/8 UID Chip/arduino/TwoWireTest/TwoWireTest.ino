@@ -20,11 +20,11 @@ void setup() {
   Reads 'len' bytes starting from specified register into 'buffer'.
   Returns true on success, false on communication failure.
 */
-bool readRegister(uint8_t reg, uint8_t* buffer, uint8_t len) {
+bool readRegister(uint16_t d, uint8_t reg, uint8_t* buffer, uint8_t len) {
   // Wake-Up the chip.
   Wire.beginTransmission(DEVICE_ADDR);
   Wire.endTransmission(true);
-  delayMicroseconds(700);
+  delay(1); // 1 - 125ms works
 
   Wire.beginTransmission(DEVICE_ADDR);
   Wire.write(reg);
@@ -49,7 +49,7 @@ void loop() {
 
   uint8_t id[6] = {0};
 
-  bool okId = readRegister(0, id, sizeof(id));
+  bool okId = readRegister(sampleCount, 0, id, sizeof(id));
 
   // Sample index
   Serial.print(F("[#"));
@@ -69,5 +69,5 @@ void loop() {
   }
 
   Serial.println();
-  delay(1000);
+  delay(3000);
 }

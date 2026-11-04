@@ -29,7 +29,7 @@ static uint8_t len;         /* Bit counter */
 static uint8_t pause_sda;   /* 1 = slave drives SDA, ignore pin change events */
 static uint8_t i2c_rw;      /* Read/write bit sampled from address phase */
 static uint8_t last;        /* Previous state of Port A pins */
-static uint8_t tick;      
+static uint16_t tick;      
 #define reg ID
 
 /* --- Low-level open-drain SDA control (PA latch is kept 0 permanently) --- */
@@ -84,6 +84,7 @@ void main(void)
 
     state = ST_IDLE;
     last = PA;
+    uint8_t clkmd_old = CLKMD;
 
     while (1)
     {
@@ -95,8 +96,11 @@ void main(void)
                is almost immediate. */
             if (++tick == 0)
             {
-                __asm stopexe __endasm;
+                CLKMD = 0xF4;
+                CLKMD &= ~CLKMD_ENABLE_IHRC;
+                __asm stopsys __endasm;
                 __asm nop __endasm;
+                CLKMD = clkmd_old;
             }
         }
         else
