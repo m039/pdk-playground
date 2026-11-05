@@ -25,21 +25,18 @@ enum
 #define SDA_LOW()                                        \
     do                                                   \
     {                                                    \
-        pause_sda = 1;                                   \
         PAC |= SDA_BIT; /* Output mode: pin pulls low */ \
     } while (0)
 
 #define SDA_HIGH()                                                                        \
     do                                                                                    \
     {                                                                                     \
-        pause_sda = 1;                                                                    \
         PAC &= (uint8_t)~SDA_BIT; /* Input mode: line pulled high by external resistor */ \
     } while (0)
 
 #define SDA_RELEASE()                                          \
     do                                                         \
     {                                                          \
-        pause_sda = 0;                                         \
         PAC &= (uint8_t)~SDA_BIT; /* Release line to master */ \
     } while (0)
 
@@ -93,8 +90,6 @@ inline void i2c_init(uint8_t *data, uint8_t length)
     timeout = 0;
 }
 
-static uint8_t scl_current;
-static uint8_t sda_current;
 
 inline void i2c_process()
 {
@@ -104,13 +99,13 @@ inline void i2c_process()
     do {
         uint8_t tmp = last ^ current;
 
-        if (tmp & SCL_BIT) /* scl_change */
+        if (tmp & SCL_BIT)
         {
-            scl_current = current & SCL_BIT;
+            uint8_t scl_current = current & SCL_BIT;
 
             if (scl_current) /* SCL rising edge (0 -> 1): sample SDA */
             {
-                sda_current = current & SDA_BIT;
+                uint8_t sda_current = current & SDA_BIT;
 
                 if (state == ST_ADDR)
                 {
@@ -188,6 +183,7 @@ inline void i2c_process()
             {
                 if (state == ST_ACK)
                 {
+                    pause_sda = 1;                                   \
                     SDA_LOW(); /* Drive ACK (pull SDA low) */
                 }
                 else if (state == ST_READ)
@@ -196,6 +192,7 @@ inline void i2c_process()
                 }
                 else
                 { /* ST_WRITE, ST_RACK */
+                    pause_sda = 0;
                     SDA_RELEASE();
                 }
             }
@@ -204,12 +201,11 @@ inline void i2c_process()
         }
         else
         {
-            scl_current = current & SCL_BIT;
+            uint8_t scl_current = current & SCL_BIT;
 
-            if ((tmp & SDA_BIT) /* sda _change */ && !pause_sda && scl_current)
+            if ((tmp & SDA_BIT) && !pause_sda && scl_current)
             {
-                sda_current = current & SDA_BIT;
-
+                uint8_t sda_current = current & SDA_BIT;
                 if (sda_current)
                 {
                     /* SDA rising edge while SCL high (0 -> 1): STOP condition */

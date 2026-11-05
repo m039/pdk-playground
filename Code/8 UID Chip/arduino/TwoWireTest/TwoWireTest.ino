@@ -56,7 +56,7 @@ bool readRegister(uint8_t reg, uint8_t* buffer, uint8_t len) {
   // 1. Wake-up ping: toggle the bus to wake the slave from stopsys
   Wire.beginTransmission(DEVICE_ADDR);
   Wire.endTransmission(true);
-  delay(2); // 1 - 125 ms works: allows 8 MHz IHRC to wake and stabilize
+  delay(1); // 1 - 125 ms works: allows 8 MHz IHRC to wake and stabilize
 
   // 2. Transmit target register pointer
   Wire.beginTransmission(DEVICE_ADDR);
