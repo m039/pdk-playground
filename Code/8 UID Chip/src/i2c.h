@@ -3,7 +3,6 @@
 
 #include <pdk/device.h>
 #include <stdint.h>
-#include "delay.h"
 
 #define I2C_ADDR 0x2B
 #define PIN_SCL 0
@@ -69,10 +68,6 @@ inline uint8_t i2c_is_idle()
     return !state;
 }
 
-inline void i2c_irq_handler() {
-
-}
-
 inline void i2c_init(uint8_t *data, uint8_t length)
 {
     reg_data = data;
@@ -94,9 +89,6 @@ inline void i2c_init(uint8_t *data, uint8_t length)
 
     state = ST_IDLE;
     last = PA;
-
-    INTRQ = 0;
-    __engint();                     // Enable global interrupts
 }
 
 static uint8_t scl_current;
@@ -134,22 +126,22 @@ inline void i2c_process()
             }
             else if (state == ST_ACK)
             {
+                len = 0;
+
                 if (i2c_rw)
                 {
                     state = ST_READ;
                     data = reg_data[ptr];
-                    len = 0;
                 }
                 else
                 {
                     state = ST_WRITE;
-                    len = 0;
                     data = 0;
                 }
             }
             else if (state == ST_READ)
             {
-                if (len == 8)        /* 8th bit sampled by master */
+                if (++len == 8)      /* 8th bit sampled by master */
                     state = ST_RACK; /* Await master ACK / NAK */
             }
             else if (state == ST_WRITE)
@@ -193,19 +185,12 @@ inline void i2c_process()
             {
                 SDA_LOW(); /* Drive ACK (pull SDA low) */
             }
-            else if (state == ST_WRITE)
-            {
-                SDA_RELEASE(); /* Release SDA after register ACK */
-            }
             else if (state == ST_READ)
             {
                 SEND_NEXT_BIT();
-                len++;
             }
-            else if (state == ST_RACK)
-            {
-                SDA_RELEASE(); /* Release SDA for master ACK slot */
-            } else {
+            else
+            { /* ST_WRITE, ST_RACK */
                 SDA_RELEASE();
             }
         }
@@ -237,7 +222,6 @@ inline void i2c_process()
                 len = 0;
                 data = 0;
             }
-
         }
 
         last = current;

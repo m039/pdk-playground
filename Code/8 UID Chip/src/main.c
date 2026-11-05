@@ -8,13 +8,6 @@ uint8_t ID[6] = { 0x22, 0x55, 0x33, 0x11, 0x33, 0x53 };
 
 static uint16_t tick;
 
-void interrupt(void) __interrupt(0) {
-  if (INTRQ & INTRQ_PA0) {        // TM2 interrupt request?
-    INTRQ &= ~INTRQ_PA0;          // Mark TM2 interrupt request processed
-    i2c_irq_handler();         // Process next Serial Bit
-  }
-}
-
 void main(void)
 {
     i2c_init(ID, sizeof(ID) / sizeof(ID[0]));
