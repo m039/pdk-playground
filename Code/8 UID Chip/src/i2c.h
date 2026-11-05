@@ -99,150 +99,148 @@ static uint8_t sda_current;
 inline void i2c_process()
 {
     uint8_t current = PA;
-    uint8_t tmp = last ^ current;
-
-    if (!tmp)
-    {
-        if (state)
-        {
-            if (++timeout == 0)
-            {
-                state = ST_IDLE;
-                SDA_RELEASE();
-            }
-        }
-        return;
-    }
-
     timeout = 0;
 
-    if (tmp & SCL_BIT) /* scl_change */
-    {
-        scl_current = current & SCL_BIT;
+    do {
+        uint8_t tmp = last ^ current;
 
-        if (scl_current) /* SCL rising edge (0 -> 1): sample SDA */
+        if (tmp & SCL_BIT) /* scl_change */
         {
-            sda_current = current & SDA_BIT;
+            scl_current = current & SCL_BIT;
 
-            if (state == ST_ADDR)
+            if (scl_current) /* SCL rising edge (0 -> 1): sample SDA */
             {
-                len++;
-                data <<= 1;
-                if (sda_current)
-                    data |= 1;
+                sda_current = current & SDA_BIT;
 
-                if (len == 8)
+                if (state == ST_ADDR)
                 {
-                    i2c_rw = sda_current;
-                    state = ST_ACK;
-                }
-                else if (len == 7 && data != I2C_ADDR)
-                {
-                    state = ST_IDLE; /* Not our address; return to idle */
-                }
-            }
-            else if (state == ST_ACK)
-            {
-                len = 0;
+                    len++;
+                    data <<= 1;
+                    if (sda_current)
+                        data |= 1;
 
-                if (i2c_rw)
-                {
-                    state = ST_READ;
-                    data = reg_data[ptr];
-                }
-                else
-                {
-                    state = ST_WRITE;
-                    data = 0;
-                }
-            }
-            else if (state == ST_READ)
-            {
-                if (++len == 8)      /* 8th bit sampled by master */
-                    state = ST_RACK; /* Await master ACK / NAK */
-            }
-            else if (state == ST_WRITE)
-            {
-                len++;
-                data <<= 1;
-                if (sda_current)
-                    data |= 1;
-
-                if (len == 8)
-                {
-                    /* Data received is the requested register pointer */
-                    ptr = data;
-                    state = ST_ACK;
-                }
-            }
-            else if (state == ST_RACK)
-            {
-                if (sda_current) /* NAK: master finished reading */
-                {
-                    state = ST_IDLE;
-                }
-                else /* ACK: master requests sequential byte */
-                {
-                    if (ptr >= reg_length)
+                    if (len == 8)
                     {
-                        data = 0xFF;
+                        i2c_rw = sda_current;
+                        state = ST_ACK;
+                    }
+                    else if (len == 7 && data != I2C_ADDR)
+                    {
+                        state = ST_IDLE; /* Not our address; return to idle */
+                    }
+                }
+                else if (state == ST_ACK)
+                {
+                    len = 0;
+
+                    if (i2c_rw)
+                    {
+                        state = ST_READ;
+                        data = reg_data[ptr];
                     }
                     else
                     {
-                        data = reg_data[ptr++];
+                        state = ST_WRITE;
+                        data = 0;
                     }
-                    len = 0;
-                    state = ST_READ;
                 }
-            }
-        }
-        else /* SCL falling edge (1 -> 0): drive SDA */
-        {
-            if (state == ST_ACK)
-            {
-                SDA_LOW(); /* Drive ACK (pull SDA low) */
-            }
-            else if (state == ST_READ)
-            {
-                SEND_NEXT_BIT();
-            }
-            else
-            { /* ST_WRITE, ST_RACK */
-                SDA_RELEASE();
-            }
-        }
-
-        last = current;
-    }
-    else
-    {
-        scl_current = current & SCL_BIT;
-
-        if ((tmp & SDA_BIT) /* sda _change */ && !pause_sda && scl_current)
-        {
-            sda_current = current & SDA_BIT;
-
-            if (sda_current)
-            {
-                /* SDA rising edge while SCL high (0 -> 1): STOP condition */
-                state = ST_IDLE;
-            }
-            else
-            {
-                /* SDA falling edge while SCL high (1 -> 0): START / REPEATED START condition */
-                if (state)
+                else if (state == ST_READ)
                 {
-                    ptr = 0; /* Reset register pointer on fresh START */
+                    if (++len == 8)      /* 8th bit sampled by master */
+                        state = ST_RACK; /* Await master ACK / NAK */
                 }
+                else if (state == ST_WRITE)
+                {
+                    len++;
+                    data <<= 1;
+                    if (sda_current)
+                        data |= 1;
 
-                state = ST_ADDR;
-                len = 0;
-                data = 0;
+                    if (len == 8)
+                    {
+                        /* Data received is the requested register pointer */
+                        ptr = data;
+                        state = ST_ACK;
+                    }
+                }
+                else if (state == ST_RACK)
+                {
+                    if (sda_current) /* NAK: master finished reading */
+                    {
+                        state = ST_IDLE;
+                    }
+                    else /* ACK: master requests sequential byte */
+                    {
+                        if (ptr >= reg_length)
+                        {
+                            data = 0xFF;
+                        }
+                        else
+                        {
+                            data = reg_data[ptr++];
+                        }
+                        len = 0;
+                        state = ST_READ;
+                    }
+                }
+            }
+            else /* SCL falling edge (1 -> 0): drive SDA */
+            {
+                if (state == ST_ACK)
+                {
+                    SDA_LOW(); /* Drive ACK (pull SDA low) */
+                }
+                else if (state == ST_READ)
+                {
+                    SEND_NEXT_BIT();
+                }
+                else
+                { /* ST_WRITE, ST_RACK */
+                    SDA_RELEASE();
+                }
+            }
+
+            last = current;
+        }
+        else
+        {
+            scl_current = current & SCL_BIT;
+
+            if ((tmp & SDA_BIT) /* sda _change */ && !pause_sda && scl_current)
+            {
+                sda_current = current & SDA_BIT;
+
+                if (sda_current)
+                {
+                    /* SDA rising edge while SCL high (0 -> 1): STOP condition */
+                    state = ST_IDLE;
+                }
+                else
+                {
+                    /* SDA falling edge while SCL high (1 -> 0): START / REPEATED START condition */
+                    if (state)
+                    {
+                        ptr = 0; /* Reset register pointer on fresh START */
+                    }
+
+                    state = ST_ADDR;
+                    len = 0;
+                    data = 0;
+                }
+            }
+
+            last = current;
+        }
+
+        while ((current = PA) == last) {
+            if (++timeout == 0) {
+                state = ST_IDLE;
+                break;
             }
         }
 
-        last = current;
-    }
+        timeout = 0;
+    } while (state != ST_IDLE);
 }
 
 #endif
