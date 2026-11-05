@@ -131,6 +131,7 @@ inline void i2c_process()
                     if (i2c_rw)
                     {
                         state = ST_READ;
+                        data = (ptr < reg_length) ? reg_data[ptr++] : 0xFF;
                     }
                     else
                     {
@@ -184,12 +185,6 @@ inline void i2c_process()
                 {
                     pause_sda = 1;                                   \
                     SDA_LOW(); /* Drive ACK (pull SDA low) */
-
-                    if (i2c_rw)
-                    {
-                        /* Prefetch first/next data byte while master is holding SCL low for ACK */
-                        data = (ptr < reg_length) ? reg_data[ptr++] : 0xFF;
-                    }
                 }
                 else if (state == ST_READ)
                 {
