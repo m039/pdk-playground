@@ -5,7 +5,7 @@
   The PMS150C emulates an I2C slave (7-bit address 0x2B) and responds with a 6-byte
   Unique ID (UID) from Register 0x00.
 
-  Wiring (Arduino Nano <-> PMS150C SOP-8):
+  Wiring (Arduino Nano <-> PMS150C):
     - A5 (SCL)  <->  Pin 1 (PA0)  [4.7 kΩ pull-up to 5V required]
     - A4 (SDA)  <->  Pin 6 (PA5)  [4.7 kΩ pull-up to 5V required]
     - 5V        <->  Pin 4 (VDD)  [2.4V – 5.5V supply]
@@ -15,9 +15,9 @@
     The PMS150C enters ultra-low-power deep sleep ('stopsys', < 0.5 µA) after 65536 idle cycles.
     To read data:
       1. Master sends a dummy I2C START/STOP ping (Wire.beginTransmission / endTransmission).
-      2. Master waits 1 ms (delay(1), range 1–125 ms works) allowing the PMS150C IHRC oscillator
+      2. Master waits 2 ms (delay(2), range 1–125 ms works) allowing the PMS150C IHRC oscillator
          to start up, stabilize at 8 MHz, and enter the ST_IDLE listening state.
-      3. Master sends the register pointer (0x00) and reads the 6-byte UID sequence.
+      3. Master sends the register pointer (0x00) and reads the 6-byte UID sequence at 100 kHz.
 */
 
 #include <Wire.h>
@@ -28,7 +28,7 @@ const uint8_t UID_LENGTH  = 6;
 
 void setup() {
   Wire.begin();           // Initialize I2C Master (Nano: SDA = A4, SCL = A5)
-  Wire.setClock(75000);   // 50 kHz clock rate for reliable software I2C slave polling
+  Wire.setClock(100000);  // 100 kHz clock rate (standard I2C speed)
   Serial.begin(115200);
 
   while (!Serial && millis() < 2000); // Wait for serial port on USB boards
@@ -37,8 +37,8 @@ void setup() {
   Serial.println(F("=================================================="));
   Serial.println(F(" PMS150C UID Chip Reader (Arduino I2C Master)"));
   Serial.println(F(" Target Address : 0x2B (Register 0x00: 6-byte UID)"));
-  Serial.println(F(" Bus Clock      : 50 kHz | Serial: 115200 baud"));
-  Serial.println(F(" Wake-up Delay  : 1 ms (allows IHRC 8 MHz to settle)"));
+  Serial.println(F(" Bus Clock      : 100 kHz | Serial: 115200 baud"));
+  Serial.println(F(" Wake-up Delay  : 2 ms (allows IHRC 8 MHz to settle)"));
   Serial.println(F(" Required Pins  : A4 (SDA), A5 (SCL) + 4.7k pull-ups"));
   Serial.println(F("=================================================="));
   Serial.println();

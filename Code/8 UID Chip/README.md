@@ -2,9 +2,20 @@
 
 Emulates an ultra-low-cost I2C hardware identification / dongle chip on a Padauk **PMS150C** (or **PFS154**). The microcontroller acts as an I2C slave (7-bit address `0x2B`) and responds with a 6-byte Unique ID (UID) sequence from Register `0x00`.
 
-To achieve true sub-microamp standby consumption, the firmware automatically enters the ultra-low-power **`stopsys`** deep sleep mode after 65536 idle cycles.
+The slave engine is heavily optimized to run at the standard **100 kbit/s (100 kHz)** I2C bus clock. To achieve true sub-microamp standby consumption, the firmware automatically enters the ultra-low-power **`stopsys`** deep sleep mode after 65536 idle cycles.
 
 Works in tandem with the companion Arduino sketch in **`arduino/TwoWireTest/TwoWireTest.ino`** (I2C master reader).
+
+---
+
+## 100 kHz Speed Optimization
+
+At an 8 MHz CPU clock, a standard 100 kHz I2C half-cycle is only **40 CPU cycles** (5 µs). The firmware achieves reliable 100 kHz operation through several architectural optimizations:
+
+1. **Inner-Loop Polling:** Once a START condition is detected, execution remains inside a dedicated assembly wait loop with a sampling latency of only **~6–8 CPU cycles (< 1.0 µs)**.
+2. **Immediate SDA Output:** On the SCL falling edge (1 -> 0), the outgoing bit or ACK is updated to `PAC` within **14–18 CPU cycles (< 2.2 µs)**, leaving over **2.8 µs (22+ CPU cycles)** of setup margin before SCL rises.
+3. **Sequential Read Pointer:** Sequential multi-byte reads cleanly increment the register pointer without duplicate bytes.
+4. **Safety Timeout:** If the master stalls mid-frame for more than ~49 ms, the slave safely aborts to `ST_IDLE` and allows the MCU to return to deep sleep.
 
 ---
 
@@ -40,10 +51,10 @@ Both I2C lines are open-drain and require external 4.7 kΩ pull-up resistors to 
 Because the PMS150C enters `stopsys` deep sleep when idle:
 
 1. **Wake-Up Ping:** The master transmits a dummy address packet (`Wire.beginTransmission(0x2B); Wire.endTransmission(true);`).
-2. **Wake Latency:** The master waits **1 ms** (`delay(1)`, range 1–125 ms works) allowing the PMS150C 8 MHz IHRC oscillator to start up.
-3. **Register Read:** The master transmits the requested register index (`0x00`) and requests 6 bytes (`Wire.requestFrom(0x2B, 6)`).
-4. **Data:** The slave streams the 6-byte UID sequence (`ID[0..5]`).
-5. **Idle Timeout:** If no bus activity occurs for 65536 loop cycles, the slave switches clock to ILRC, turns off IHRC, and re-enters `stopsys`.
+2. **Wake Latency:** The master waits **2 ms** (`delay(2)`, range 1–125 ms works) allowing the PMS150C 8 MHz IHRC oscillator to start up and stabilize.
+3. **Register Read:** The master transmits the requested register index (`0x00`) and requests 6 bytes (`Wire.requestFrom(0x2B, 6)`) at **100 kHz**.
+4. **Data Stream:** The slave streams the 6-byte UID sequence (`ID[0..5]`).
+5. **Idle Timeout:** If no bus activity occurs for 65536 loop cycles (~90 ms), the slave switches clock to ILRC, turns off IHRC, and re-enters `stopsys`.
 
 ---
 
@@ -66,8 +77,4 @@ Because the PMS150C enters `stopsys` deep sleep when idle:
 2. **Arduino Master:**
    - Open `arduino/TwoWireTest/TwoWireTest.ino` in the Arduino IDE.
    - Connect your Arduino Nano via USB and select the corresponding COM port.
-   - Upload sketch and open Serial Monitor at **115200 baud**.
-
----
-
-*Code comments and README.md thoroughly prepared by Gemini (G).*
+   - Upload sketch and open Serial Monitor at **115200 baud** with **100 kHz** I2C clock.

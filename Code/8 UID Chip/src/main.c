@@ -6,7 +6,7 @@
 /* 6-byte Unique ID payload returned on I2C read requests */
 uint8_t ID[6] = { 0x22, 0x55, 0x33, 0x11, 0x33, 0x53 };
 
-static uint16_t tick;
+uint16_t tick;
 
 void main(void)
 {
@@ -18,10 +18,10 @@ void main(void)
     {
         if (i2c_is_idle())
         {
-            /* Stay awake for 65536 idle passes after the last bus activity,
+            /* Stay awake for 65536 idle passes (~90 ms) after the last bus activity,
                then enter deep sleep (stopsys). Clock is switched to ILRC and
-               IHRC is disabled for sub-microamp standby. Upon wake-up by
-               SCL/SDA toggle, IHRC is restored to clkmd_old. */
+               IHRC is disabled for sub-microamp standby (< 0.5 µA). Upon wake-up by
+               SCL/SDA pin change, IHRC is restored to 8 MHz (clkmd_old). */
             if (++tick == 0)
             {
                 CLKMD = 0xF4;
@@ -29,6 +29,7 @@ void main(void)
                 __asm stopsys __endasm;
                 __asm nop __endasm;
                 CLKMD = clkmd_old;
+                last = PA;
             }
         }
         else
