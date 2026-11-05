@@ -16,12 +16,13 @@ void main(void)
 
     while (1)
     {
-        if (i2c_is_idle())
+        /* When both SCL and SDA are HIGH, the bus is idle */
+        if ((PA & (SCL_BIT | SDA_BIT)) == (SCL_BIT | SDA_BIT))
         {
-            /* Stay awake for 65536 idle passes after the last bus activity,
+            /* Stay awake for 65536 idle passes (~90 ms) after the last bus activity,
                then enter deep sleep (stopsys). Clock is switched to ILRC and
-               IHRC is disabled for sub-microamp standby. Upon wake-up by
-               SCL/SDA toggle, IHRC is restored to clkmd_old. */
+               IHRC is disabled for sub-microamp standby (< 0.5 µA). Upon wake-up by
+               SCL/SDA pin toggle, IHRC is restored to 8 MHz (clkmd_old). */
             if (++tick == 0)
             {
                 CLKMD = 0xF4;
@@ -30,13 +31,15 @@ void main(void)
                 __asm nop __endasm;
                 CLKMD = clkmd_old;
             }
-        }
-        else
-        {
-            tick = 0; /* Bus active: restart the idle countdown */
+            continue;
         }
 
-        i2c_process();
+        /* Detect START condition: SDA low while SCL high */
+        if ((PA & (SCL_BIT | SDA_BIT)) == SCL_BIT)
+        {
+            tick = 0; /* Reset idle countdown */
+            i2c_process();
+        }
     }
 }
 

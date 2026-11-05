@@ -10,221 +10,208 @@
 #define SCL_BIT ((uint8_t)(1 << PIN_SCL))
 #define SDA_BIT ((uint8_t)(1 << PIN_SDA))
 
-/* I2C Slave state machine states */
-enum
-{
-    ST_IDLE = 0,  /* Bus idle / awaiting START condition */
-    ST_ADDR = 1,  /* Receiving 7-bit slave address + R/W bit */
-    ST_ACK = 2,   /* Acknowledging address or received register pointer */
-    ST_READ = 4,  /* Transmitting data byte to master */
-    ST_WRITE = 8, /* Receiving register pointer byte from master */
-    ST_RACK = 16  /* Master ACK/NAK slot: ACK = send next byte, NAK = stop */
-};
+#define SDA_LOW()     do { PAC |= SDA_BIT; } while (0)
+#define SDA_RELEASE() do { PAC &= (uint8_t)~SDA_BIT; } while (0)
 
-/* --- Low-level open-drain SDA control (PA latch is kept 0 permanently) --- */
-#define SDA_LOW()                                        \
-    do                                                   \
-    {                                                    \
-        pause_sda = 1;                                   \
-        PAC |= SDA_BIT; /* Output mode: pin pulls low */ \
+/* Timeout ~30 ms at 8 MHz */
+#define I2C_TIMEOUT 60000U
+
+/* Wait for SCL to fall to 0. Detects STOP condition (SDA rising while SCL is high). */
+#define WAIT_SCL_LOW(ok)                                \
+    do {                                                \
+        uint16_t _t = 0;                                \
+        uint8_t _prev = PA & SDA_BIT;                   \
+        ok = 0;                                         \
+        while (PA & SCL_BIT) {                          \
+            uint8_t _cur = PA & SDA_BIT;                \
+            if (!_prev && _cur) { ok = 0; break; }      /* STOP condition */ \
+            _prev = _cur;                               \
+            if (++_t >= I2C_TIMEOUT) { ok = 0; break; } /* Timeout */ \
+        }                                               \
+        if (PA & SCL_BIT) break;                        \
+        ok = 1;                                         \
     } while (0)
 
-#define SDA_HIGH()                                                                        \
-    do                                                                                    \
-    {                                                                                     \
-        pause_sda = 1;                                                                    \
-        PAC &= (uint8_t)~SDA_BIT; /* Input mode: line pulled high by external resistor */ \
+/* Wait for SCL to rise to 1. */
+#define WAIT_SCL_HIGH(ok)                               \
+    do {                                                \
+        uint16_t _t = 0;                                \
+        ok = 0;                                         \
+        while (!(PA & SCL_BIT)) {                       \
+            if (++_t >= I2C_TIMEOUT) { ok = 0; break; } \
+        }                                               \
+        if (!(PA & SCL_BIT)) break;                     \
+        ok = 1;                                         \
     } while (0)
 
-#define SDA_RELEASE()                                          \
-    do                                                         \
-    {                                                          \
-        pause_sda = 0;                                         \
-        PAC &= (uint8_t)~SDA_BIT; /* Release line to master */ \
-    } while (0)
-
-#define SEND_NEXT_BIT()  \
-    do                   \
-    {                    \
-        if (data & 0x80) \
-            SDA_HIGH();  \
-        else             \
-            SDA_LOW();   \
-        data <<= 1;      \
-    } while (0)
-
-static uint8_t state;
-static uint8_t data;      /* Shift register for address/data */
-static uint8_t ptr;       /* Current register index being read */
-static uint8_t len;       /* Bit counter */
-static uint8_t pause_sda; /* 1 = slave drives SDA, ignore pin change events */
-static uint8_t i2c_rw;    /* Read/write bit sampled from address phase */
-static uint8_t last;      /* Previous state of Port A pins */
 static uint8_t *reg_data;
 static uint8_t reg_length;
-
-inline uint8_t i2c_is_idle()
-{
-    return !state;
-}
+static uint8_t ptr;
 
 inline void i2c_init(uint8_t *data, uint8_t length)
 {
     reg_data = data;
     reg_length = length;
+    ptr = 0;
 
-    PA &= (uint8_t)~(SDA_BIT | SCL_BIT);  /* Output latches set to 0 permanently */
-    PAC &= (uint8_t)~(SDA_BIT | SCL_BIT); /* Both lines released (input mode) */
+    PA &= (uint8_t)~(SDA_BIT | SCL_BIT);  /* Output latches set to 0 */
+    PAC &= (uint8_t)~(SDA_BIT | SCL_BIT); /* Input mode (released) */
 
-    /* Wake-up from stopsys enabled ONLY for SCL (PA0) and SDA (PA5):
-       any toggle on these pins wakes the CPU. All other pins must not. */
-    PADIER = SCL_BIT | SDA_BIT;
-    PBDIER = 0x00; /* Port B must not wake the MCU */
-
-    /* Fast wake-up: reduces oscillator warm-up time upon wake-up */
+    PADIER = SCL_BIT | SDA_BIT;           /* Wake-up on SCL/SDA */
+    PBDIER = 0x00;
     MISC |= MISC_FAST_WAKEUP_ENABLE;
-
-    /* Enable weak internal pull-ups as backup for external 4.7k resistors */
-    PAPH = SCL_BIT | SDA_BIT;
-
-    state = ST_IDLE;
-    last = PA;
+    PAPH = SCL_BIT | SDA_BIT;             /* Internal pull-ups */
 }
 
-static uint8_t scl_current;
-static uint8_t sda_current;
-
-inline void i2c_process()
+/* Receives 8 bits from master */
+static uint8_t i2c_read_byte(uint8_t *out)
 {
-    uint8_t current = PA;
-    uint8_t tmp = last ^ current;
+    uint8_t byte = 0;
+    uint8_t ok;
 
-    if (tmp & SCL_BIT) /* scl_change */
+    for (uint8_t i = 0; i < 8; i++)
     {
-        scl_current = current & SCL_BIT;
+        WAIT_SCL_LOW(ok);
+        if (!ok) return 0;
 
-        if (scl_current) /* SCL rising edge (0 -> 1): sample SDA */
-        {
-            sda_current = current & SDA_BIT;
+        WAIT_SCL_HIGH(ok);
+        if (!ok) return 0;
 
-            if (state == ST_ADDR)
-            {
-                len++;
-                data <<= 1;
-                if (sda_current)
-                    data |= 1;
-
-                if (len == 8)
-                {
-                    i2c_rw = sda_current;
-                    state = ST_ACK;
-                }
-                else if (len == 7 && data != I2C_ADDR)
-                {
-                    state = ST_IDLE; /* Not our address; return to idle */
-                }
-            }
-            else if (state == ST_ACK)
-            {
-                len = 0;
-
-                if (i2c_rw)
-                {
-                    state = ST_READ;
-                    data = reg_data[ptr];
-                }
-                else
-                {
-                    state = ST_WRITE;
-                    data = 0;
-                }
-            }
-            else if (state == ST_READ)
-            {
-                if (++len == 8)      /* 8th bit sampled by master */
-                    state = ST_RACK; /* Await master ACK / NAK */
-            }
-            else if (state == ST_WRITE)
-            {
-                len++;
-                data <<= 1;
-                if (sda_current)
-                    data |= 1;
-
-                if (len == 8)
-                {
-                    /* Data received is the requested register pointer */
-                    ptr = data;
-                    state = ST_ACK;
-                }
-            }
-            else if (state == ST_RACK)
-            {
-                if (sda_current) /* NAK: master finished reading */
-                {
-                    state = ST_IDLE;
-                }
-                else /* ACK: master requests sequential byte */
-                {
-                    if (ptr >= reg_length)
-                    {
-                        data = 0xFF;
-                    }
-                    else
-                    {
-                        data = reg_data[ptr++];
-                    }
-                    len = 0;
-                    state = ST_READ;
-                }
-            }
-        }
-        else /* SCL falling edge (1 -> 0): drive SDA */
-        {
-            if (state == ST_ACK)
-            {
-                SDA_LOW(); /* Drive ACK (pull SDA low) */
-            }
-            else if (state == ST_READ)
-            {
-                SEND_NEXT_BIT();
-            }
-            else
-            { /* ST_WRITE, ST_RACK */
-                SDA_RELEASE();
-            }
-        }
-
-        last = current;
+        byte = (byte << 1) | ((PA & SDA_BIT) ? 1 : 0);
     }
-    else
+
+    *out = byte;
+    return 1;
+}
+
+/* Sends ACK to master */
+static uint8_t i2c_send_ack(void)
+{
+    uint8_t ok;
+
+    WAIT_SCL_LOW(ok);
+    if (!ok) return 0;
+
+    SDA_LOW(); /* Pull SDA low for ACK */
+
+    WAIT_SCL_HIGH(ok);
+    if (!ok) { SDA_RELEASE(); return 0; }
+
+    WAIT_SCL_LOW(ok);
+    SDA_RELEASE(); /* Release SDA */
+
+    return ok;
+}
+
+/* Transmits 8 bits to master and reads master ACK/NAK */
+static uint8_t i2c_write_byte(uint8_t byte, uint8_t *nak)
+{
+    uint8_t ok;
+
+    for (uint8_t i = 0; i < 8; i++)
     {
-        scl_current = current & SCL_BIT;
+        WAIT_SCL_LOW(ok);
+        if (!ok) { SDA_RELEASE(); return 0; }
 
-        if ((tmp & SDA_BIT) /* sda _change */ && !pause_sda && scl_current)
+        if (byte & 0x80)
+            SDA_RELEASE();
+        else
+            SDA_LOW();
+
+        byte <<= 1;
+
+        WAIT_SCL_HIGH(ok);
+        if (!ok) { SDA_RELEASE(); return 0; }
+    }
+
+    /* 9th clock: release SDA and sample master ACK (0) or NAK (1) */
+    WAIT_SCL_LOW(ok);
+    SDA_RELEASE();
+    if (!ok) return 0;
+
+    WAIT_SCL_HIGH(ok);
+    if (!ok) return 0;
+
+    *nak = (PA & SDA_BIT) ? 1 : 0;
+
+    WAIT_SCL_LOW(ok);
+    return ok;
+}
+
+/* Main transaction handler called when START condition is detected */
+inline void i2c_process(void)
+{
+    uint8_t byte;
+    uint8_t ok;
+
+    while (1)
+    {
+        /* 1. Receive 7-bit Address + R/W bit */
+        if (!i2c_read_byte(&byte))
+            return;
+
+        uint8_t addr = byte >> 1;
+        uint8_t rw = byte & 1;
+
+        if (addr != I2C_ADDR)
+            return; /* Not our address */
+
+        /* 2. Address matches -> send ACK */
+        if (!i2c_send_ack())
+            return;
+
+        if (rw == 0)
         {
-            sda_current = current & SDA_BIT;
+            /* Master WRITE: receive target register pointer */
+            if (!i2c_read_byte(&byte))
+                return;
 
-            if (sda_current)
+            ptr = byte;
+
+            if (!i2c_send_ack())
+                return;
+
+            /* After ACK of register write: wait for Repeated START or STOP */
+            WAIT_SCL_HIGH(ok);
+            if (!ok) return;
+
+            /* Monitor while SCL is HIGH:
+               - If SDA goes LOW: REPEATED START! Loop to read new address!
+               - If SDA goes HIGH: STOP! Return to idle. */
+            uint16_t t = 0;
+            while (PA & SCL_BIT)
             {
-                /* SDA rising edge while SCL high (0 -> 1): STOP condition */
-                state = ST_IDLE;
-            }
-            else
-            {
-                /* SDA falling edge while SCL high (1 -> 0): START / REPEATED START condition */
-                if (state)
+                if (!(PA & SDA_BIT))
                 {
-                    ptr = 0; /* Reset register pointer on fresh START */
+                    /* REPEATED START detected */
+                    break;
                 }
+                if (++t >= I2C_TIMEOUT)
+                    return;
+            }
 
-                state = ST_ADDR;
-                len = 0;
-                data = 0;
+            continue;
+        }
+        else
+        {
+            /* Master READ: stream data bytes */
+            while (1)
+            {
+                uint8_t val = (ptr < reg_length) ? reg_data[ptr++] : 0xFF;
+                uint8_t nak;
+
+                if (!i2c_write_byte(val, &nak))
+                    return;
+
+                if (nak)
+                {
+                    /* Master sent NAK: transmission complete */
+                    if (ptr >= reg_length)
+                        ptr = 0;
+                    return;
+                }
             }
         }
-
-        last = current;
     }
 }
 
