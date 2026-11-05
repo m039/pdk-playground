@@ -28,7 +28,7 @@ const uint8_t UID_LENGTH  = 6;
 
 void setup() {
   Wire.begin();           // Initialize I2C Master (Nano: SDA = A4, SCL = A5)
-  Wire.setClock(50000);   // 50 kHz clock rate for reliable software I2C slave polling
+  Wire.setClock(80000);   // 50 kHz clock rate for reliable software I2C slave polling
   Serial.begin(115200);
 
   while (!Serial && millis() < 2000); // Wait for serial port on USB boards
@@ -104,5 +104,5 @@ void loop() {
     Serial.println(F("        -> Check 4.7k pull-up resistors on A4/A5 and PMS150C power."));
   }
 
-  delay(3000);
+  delay(1000);
 }
