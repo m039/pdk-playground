@@ -52,14 +52,16 @@ enum
 
 static uint8_t state;
 static uint8_t data;      /* Shift register for address/data */
-static uint8_t ptr;       /* Current register index being read */
 static uint8_t len;       /* Bit counter */
 static uint8_t pause_sda; /* 1 = slave drives SDA, ignore pin change events */
 static uint8_t i2c_rw;    /* Read/write bit sampled from address phase */
 static uint8_t last;      /* Previous state of Port A pins */
 static uint8_t *reg_data;
-static uint8_t reg_length;
-static uint16_t timeout;  /* Timeout counter for returning to IDLE on aborted transaction */
+static uint8_t reg_data_length;
+static uint8_t *reg_data_init;
+static uint8_t *reg_data_end;
+static uint8_t send_bytes;
+static uint16_t timeout; /* Timeout counter for returning to IDLE on aborted transaction */
 
 inline uint8_t i2c_is_idle()
 {
@@ -68,8 +70,9 @@ inline uint8_t i2c_is_idle()
 
 inline void i2c_init(uint8_t *data, uint8_t length)
 {
-    reg_data = data;
-    reg_length = length;
+    reg_data_init = data;
+    reg_data_length = length;
+    reg_data_end = &data[length];
 
     PA &= (uint8_t)~(SDA_BIT | SCL_BIT);  /* Output latches set to 0 permanently */
     PAC &= (uint8_t)~(SDA_BIT | SCL_BIT); /* Both lines released (input mode) */
@@ -90,20 +93,18 @@ inline void i2c_init(uint8_t *data, uint8_t length)
     timeout = 0;
 }
 
-
 inline void i2c_process()
 {
     uint8_t current = PA;
     timeout = 0;
 
-    do {
+    do
+    {
         uint8_t tmp = last ^ current;
 
-        if (tmp & SCL_BIT)
+        if (tmp & SCL_BIT) /* scl_change */
         {
-            uint8_t scl_current = current & SCL_BIT;
-
-            if (scl_current) /* SCL rising edge (0 -> 1): sample SDA */
+            if ((current & SCL_BIT) == SCL_BIT) /* SCL rising edge (0 -> 1): sample SDA */
             {
                 uint8_t sda_current = current & SDA_BIT;
 
@@ -114,14 +115,14 @@ inline void i2c_process()
                     if (sda_current)
                         data |= 1;
 
-                    if (len == 8)
+                    if (len == 7 && data != I2C_ADDR)
+                    {
+                        state = ST_IDLE; /* Not our address; return to idle */
+                    }
+                    else if (len == 8)
                     {
                         i2c_rw = sda_current;
                         state = ST_ACK;
-                    }
-                    else if (len == 7 && data != I2C_ADDR)
-                    {
-                        state = ST_IDLE; /* Not our address; return to idle */
                     }
                 }
                 else if (state == ST_ACK)
@@ -131,7 +132,7 @@ inline void i2c_process()
                     if (i2c_rw)
                     {
                         state = ST_READ;
-                        data = (ptr < reg_length) ? reg_data[ptr++] : 0xFF;
+                        data = *(reg_data++);
                     }
                     else
                     {
@@ -154,7 +155,10 @@ inline void i2c_process()
                     if (len == 8)
                     {
                         /* Data received is the requested register pointer */
-                        ptr = data;
+                        if (data < reg_data_length)
+                        {
+                            reg_data = &(reg_data_init[data]);
+                        }
                         state = ST_ACK;
                     }
                 }
@@ -166,13 +170,13 @@ inline void i2c_process()
                     }
                     else /* ACK: master requests sequential byte */
                     {
-                        if (ptr >= reg_length)
+                        if (reg_data == reg_data_end)
                         {
                             data = 0xFF;
                         }
                         else
                         {
-                            data = reg_data[ptr++];
+                            data = *(reg_data++);
                         }
                         len = 0;
                         state = ST_READ;
@@ -183,7 +187,7 @@ inline void i2c_process()
             {
                 if (state == ST_ACK)
                 {
-                    pause_sda = 1;                                   \
+                    pause_sda = 1;
                     SDA_LOW(); /* Drive ACK (pull SDA low) */
                 }
                 else if (state == ST_READ)
@@ -201,22 +205,17 @@ inline void i2c_process()
         }
         else
         {
-            uint8_t scl_current = current & SCL_BIT;
-
-            if ((tmp & SDA_BIT) && !pause_sda && scl_current)
+            if ((tmp & SDA_BIT) /* sda_change */ && (current & SCL_BIT) && !pause_sda)
             {
-                uint8_t sda_current = current & SDA_BIT;
-                if (sda_current)
+                if (current & SDA_BIT) /* SDA rising edge while SCL high (0 -> 1): STOP condition */
                 {
-                    /* SDA rising edge while SCL high (0 -> 1): STOP condition */
                     state = ST_IDLE;
                 }
-                else
+                else /* SDA falling edge while SCL high (1 -> 0): START / REPEATED START condition */
                 {
-                    /* SDA falling edge while SCL high (1 -> 0): START / REPEATED START condition */
                     if (state)
                     {
-                        ptr = 0; /* Reset register pointer on fresh START */
+                        reg_data = reg_data_init;
                     }
 
                     state = ST_ADDR;
@@ -228,8 +227,10 @@ inline void i2c_process()
             last = current;
         }
 
-        while ((current = PA) == last) {
-            if (++timeout == 0) {
+        while ((current = PA) == last)
+        {
+            if (++timeout == 0)
+            {
                 state = ST_IDLE;
                 break;
             }

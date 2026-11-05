@@ -28,7 +28,7 @@ const uint8_t UID_LENGTH  = 6;
 
 void setup() {
   Wire.begin();           // Initialize I2C Master (Nano: SDA = A4, SCL = A5)
-  Wire.setClock(65000);   // 65 kHz clock rate for reliable software I2C slave polling
+  Wire.setClock(700000);   // 70 kHz clock rate for reliable software I2C slave polling
   Serial.begin(115200);
 
   while (!Serial && millis() < 2000); // Wait for serial port on USB boards
@@ -56,7 +56,7 @@ bool readRegister(uint8_t reg, uint8_t* buffer, uint8_t len) {
   // 1. Wake-up ping: toggle the bus to wake the slave from stopsys
   Wire.beginTransmission(DEVICE_ADDR);
   Wire.endTransmission(true);
-  delay(1); // 1 - 125 ms works: allows 8 MHz IHRC to wake and stabilize
+  delay(2); // 1 - 125 ms works: allows 8 MHz IHRC to wake and stabilize
 
   // 2. Transmit target register pointer
   Wire.beginTransmission(DEVICE_ADDR);
