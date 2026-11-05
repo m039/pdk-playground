@@ -68,6 +68,3 @@ Because the PMS150C enters `stopsys` deep sleep when idle:
    - Connect your Arduino Nano via USB and select the corresponding COM port.
    - Upload sketch and open Serial Monitor at **115200 baud**.
 
----
-
-*Code comments and README.md thoroughly prepared by Gemini (G).*

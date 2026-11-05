@@ -62,6 +62,7 @@ static uint8_t i2c_rw;    /* Read/write bit sampled from address phase */
 static uint8_t last;      /* Previous state of Port A pins */
 static uint8_t *reg_data;
 static uint8_t reg_length;
+static uint16_t timeout;  /* Timeout counter for returning to IDLE on aborted transaction */
 
 inline uint8_t i2c_is_idle()
 {
@@ -89,6 +90,7 @@ inline void i2c_init(uint8_t *data, uint8_t length)
 
     state = ST_IDLE;
     last = PA;
+    timeout = 0;
 }
 
 static uint8_t scl_current;
@@ -98,6 +100,21 @@ inline void i2c_process()
 {
     uint8_t current = PA;
     uint8_t tmp = last ^ current;
+
+    if (!tmp)
+    {
+        if (state)
+        {
+            if (++timeout == 0)
+            {
+                state = ST_IDLE;
+                SDA_RELEASE();
+            }
+        }
+        return;
+    }
+
+    timeout = 0;
 
     if (tmp & SCL_BIT) /* scl_change */
     {

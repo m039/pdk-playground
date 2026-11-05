@@ -5,7 +5,7 @@
   The PMS150C emulates an I2C slave (7-bit address 0x2B) and responds with a 6-byte
   Unique ID (UID) from Register 0x00.
 
-  Wiring (Arduino Nano <-> PMS150C SOP-8):
+  Wiring (Arduino Nano <-> PMS150C):
     - A5 (SCL)  <->  Pin 1 (PA0)  [4.7 kΩ pull-up to 5V required]
     - A4 (SDA)  <->  Pin 6 (PA5)  [4.7 kΩ pull-up to 5V required]
     - 5V        <->  Pin 4 (VDD)  [2.4V – 5.5V supply]
