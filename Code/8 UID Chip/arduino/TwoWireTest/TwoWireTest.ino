@@ -15,7 +15,7 @@
     The PMS150C enters ultra-low-power deep sleep ('stopsys', < 0.5 µA) after 65536 idle cycles.
     To read data:
       1. Master sends a dummy I2C START/STOP ping (Wire.beginTransmission / endTransmission).
-      2. Master waits 1 ms (delay(1), range 1–125 ms works) allowing the PMS150C IHRC oscillator
+      2. Master waits 2 ms (delay(2), range 1–125 ms works) allowing the PMS150C IHRC oscillator
          to start up, stabilize at 8 MHz, and enter the ST_IDLE listening state.
       3. Master sends the register pointer (0x00) and reads the 6-byte UID sequence.
 */
@@ -28,7 +28,7 @@ const uint8_t UID_LENGTH  = 6;
 
 void setup() {
   Wire.begin();           // Initialize I2C Master (Nano: SDA = A4, SCL = A5)
-  Wire.setClock(700000);   // 70 kHz clock rate for reliable software I2C slave polling
+  Wire.setClock(70000);   // 70 kHz clock rate for reliable software I2C slave polling
   Serial.begin(115200);
 
   while (!Serial && millis() < 2000); // Wait for serial port on USB boards
@@ -37,8 +37,8 @@ void setup() {
   Serial.println(F("=================================================="));
   Serial.println(F(" PMS150C UID Chip Reader (Arduino I2C Master)"));
   Serial.println(F(" Target Address : 0x2B (Register 0x00: 6-byte UID)"));
-  Serial.println(F(" Bus Clock      : 50 kHz | Serial: 115200 baud"));
-  Serial.println(F(" Wake-up Delay  : 1 ms (allows IHRC 8 MHz to settle)"));
+  Serial.println(F(" Bus Clock      : 70 kHz | Serial: 115200 baud"));
+  Serial.println(F(" Wake-up Delay  : 2 ms (allows IHRC 8 MHz to settle)"));
   Serial.println(F(" Required Pins  : A4 (SDA), A5 (SCL) + 4.7k pull-ups"));
   Serial.println(F("=================================================="));
   Serial.println();
