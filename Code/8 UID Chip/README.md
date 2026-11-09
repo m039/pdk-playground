@@ -46,7 +46,7 @@ Because the PMS150C enters `stopsys` deep sleep when idle:
 5. **Idle Timeout:** If no bus activity occurs for 65536 loop cycles, the slave switches clock to ILRC, turns off IHRC, and re-enters `stopsys`.
 
 > **Clock Rate & Performance:**
-> The software bit-banged I2C slave runs stably at up to **70 kHz** I2C clock (`Wire.setClock(70000)`) with the PMS150C clocked at 8 MHz IHRC.
+> The software bit-banged I2C slave runs stably at up to **70 kHz** I2C clock (`Wire.setClock(70000)`) with the PMS150C clocked at 8 MHz IHRC (на 16 МГц получается ~130 кбит/с).
 
 ---
 
