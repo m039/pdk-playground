@@ -40,10 +40,13 @@ Both I2C lines are open-drain and require external 4.7 kΩ pull-up resistors to 
 Because the PMS150C enters `stopsys` deep sleep when idle:
 
 1. **Wake-Up Ping:** The master transmits a dummy address packet (`Wire.beginTransmission(0x2B); Wire.endTransmission(true);`).
-2. **Wake Latency:** The master waits **1 ms** (`delay(1)`, range 1–125 ms works) allowing the PMS150C 8 MHz IHRC oscillator to start up.
+2. **Wake Latency:** The master waits **2 ms** (`delay(2)`, range 1–125 ms works) allowing the PMS150C 8 MHz IHRC oscillator to start up and stabilize.
 3. **Register Read:** The master transmits the requested register index (`0x00`) and requests 6 bytes (`Wire.requestFrom(0x2B, 6)`).
 4. **Data:** The slave streams the 6-byte UID sequence (`ID[0..5]`).
 5. **Idle Timeout:** If no bus activity occurs for 65536 loop cycles, the slave switches clock to ILRC, turns off IHRC, and re-enters `stopsys`.
+
+> **Clock Rate & Performance:**
+> The software bit-banged I2C slave runs stably at up to **70 kHz** I2C clock (`Wire.setClock(70000)`) with the PMS150C clocked at 8 MHz IHRC.
 
 ---
 
