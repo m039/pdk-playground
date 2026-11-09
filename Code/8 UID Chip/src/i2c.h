@@ -56,10 +56,10 @@ static uint8_t len;       /* Bit counter */
 static uint8_t pause_sda; /* 1 = slave drives SDA, ignore pin change events */
 static uint8_t i2c_rw;    /* Read/write bit sampled from address phase */
 static uint8_t last;      /* Previous state of Port A pins */
-static uint8_t *reg_data;
-static uint8_t reg_data_length;
-static uint8_t *reg_data_init;
-static uint8_t *reg_data_end;
+static uint8_t *reg_data;        /* Current pointer to data payload byte being sent */
+static uint8_t reg_data_length;  /* Total payload length */
+static uint8_t *reg_data_init;   /* Start of data buffer */
+static uint8_t *reg_data_end;    /* End of data buffer (&data[length]) */
 static uint8_t send_bytes;
 static uint16_t timeout; /* Timeout counter for returning to IDLE on aborted transaction */
 
