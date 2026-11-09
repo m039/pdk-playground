@@ -25,21 +25,18 @@ enum
 #define SDA_LOW()                                        \
     do                                                   \
     {                                                    \
-        pause_sda = 1;                                   \
         PAC |= SDA_BIT; /* Output mode: pin pulls low */ \
     } while (0)
 
 #define SDA_HIGH()                                                                        \
     do                                                                                    \
     {                                                                                     \
-        pause_sda = 1;                                                                    \
         PAC &= (uint8_t)~SDA_BIT; /* Input mode: line pulled high by external resistor */ \
     } while (0)
 
 #define SDA_RELEASE()                                          \
     do                                                         \
     {                                                          \
-        pause_sda = 0;                                         \
         PAC &= (uint8_t)~SDA_BIT; /* Release line to master */ \
     } while (0)
 
@@ -55,13 +52,16 @@ enum
 
 static uint8_t state;
 static uint8_t data;      /* Shift register for address/data */
-static uint8_t ptr;       /* Current register index being read */
 static uint8_t len;       /* Bit counter */
 static uint8_t pause_sda; /* 1 = slave drives SDA, ignore pin change events */
 static uint8_t i2c_rw;    /* Read/write bit sampled from address phase */
 static uint8_t last;      /* Previous state of Port A pins */
-static uint8_t *reg_data;
-static uint8_t reg_length;
+static uint8_t *reg_data;        /* Current pointer to data payload byte being sent */
+static uint8_t reg_data_length;  /* Total payload length */
+static uint8_t *reg_data_init;   /* Start of data buffer */
+static uint8_t *reg_data_end;    /* End of data buffer (&data[length]) */
+static uint8_t send_bytes;
+static uint16_t timeout; /* Timeout counter for returning to IDLE on aborted transaction */
 
 inline uint8_t i2c_is_idle()
 {
@@ -70,8 +70,9 @@ inline uint8_t i2c_is_idle()
 
 inline void i2c_init(uint8_t *data, uint8_t length)
 {
-    reg_data = data;
-    reg_length = length;
+    reg_data_init = data;
+    reg_data_length = length;
+    reg_data_end = &data[length];
 
     PA &= (uint8_t)~(SDA_BIT | SCL_BIT);  /* Output latches set to 0 permanently */
     PAC &= (uint8_t)~(SDA_BIT | SCL_BIT); /* Both lines released (input mode) */
@@ -89,143 +90,154 @@ inline void i2c_init(uint8_t *data, uint8_t length)
 
     state = ST_IDLE;
     last = PA;
+    timeout = 0;
 }
-
-static uint8_t scl_current;
-static uint8_t sda_current;
 
 inline void i2c_process()
 {
     uint8_t current = PA;
-    uint8_t tmp = last ^ current;
+    timeout = 0;
 
-    if (tmp & SCL_BIT) /* scl_change */
+    do
     {
-        scl_current = current & SCL_BIT;
+        uint8_t tmp = last ^ current;
 
-        if (scl_current) /* SCL rising edge (0 -> 1): sample SDA */
+        if (tmp & SCL_BIT) /* scl_change */
         {
-            sda_current = current & SDA_BIT;
+            if ((current & SCL_BIT) == SCL_BIT) /* SCL rising edge (0 -> 1): sample SDA */
+            {
+                uint8_t sda_current = current & SDA_BIT;
 
-            if (state == ST_ADDR)
-            {
-                len++;
-                data <<= 1;
-                if (sda_current)
-                    data |= 1;
+                if (state == ST_ADDR)
+                {
+                    len++;
+                    data <<= 1;
+                    if (sda_current)
+                        data |= 1;
 
-                if (len == 8)
-                {
-                    i2c_rw = sda_current;
-                    state = ST_ACK;
-                }
-                else if (len == 7 && data != I2C_ADDR)
-                {
-                    state = ST_IDLE; /* Not our address; return to idle */
-                }
-            }
-            else if (state == ST_ACK)
-            {
-                len = 0;
-
-                if (i2c_rw)
-                {
-                    state = ST_READ;
-                    data = reg_data[ptr];
-                }
-                else
-                {
-                    state = ST_WRITE;
-                    data = 0;
-                }
-            }
-            else if (state == ST_READ)
-            {
-                if (++len == 8)      /* 8th bit sampled by master */
-                    state = ST_RACK; /* Await master ACK / NAK */
-            }
-            else if (state == ST_WRITE)
-            {
-                len++;
-                data <<= 1;
-                if (sda_current)
-                    data |= 1;
-
-                if (len == 8)
-                {
-                    /* Data received is the requested register pointer */
-                    ptr = data;
-                    state = ST_ACK;
-                }
-            }
-            else if (state == ST_RACK)
-            {
-                if (sda_current) /* NAK: master finished reading */
-                {
-                    state = ST_IDLE;
-                }
-                else /* ACK: master requests sequential byte */
-                {
-                    if (ptr >= reg_length)
+                    if (len == 7 && data != I2C_ADDR)
                     {
-                        data = 0xFF;
+                        state = ST_IDLE; /* Not our address; return to idle */
+                    }
+                    else if (len == 8)
+                    {
+                        i2c_rw = sda_current;
+                        state = ST_ACK;
+                    }
+                }
+                else if (state == ST_ACK)
+                {
+                    len = 0;
+
+                    if (i2c_rw)
+                    {
+                        state = ST_READ;
+                        data = *(reg_data++);
                     }
                     else
                     {
-                        data = reg_data[ptr++];
+                        state = ST_WRITE;
+                        data = 0;
                     }
-                    len = 0;
-                    state = ST_READ;
                 }
-            }
-        }
-        else /* SCL falling edge (1 -> 0): drive SDA */
-        {
-            if (state == ST_ACK)
-            {
-                SDA_LOW(); /* Drive ACK (pull SDA low) */
-            }
-            else if (state == ST_READ)
-            {
-                SEND_NEXT_BIT();
-            }
-            else
-            { /* ST_WRITE, ST_RACK */
-                SDA_RELEASE();
-            }
-        }
-
-        last = current;
-    }
-    else
-    {
-        scl_current = current & SCL_BIT;
-
-        if ((tmp & SDA_BIT) /* sda _change */ && !pause_sda && scl_current)
-        {
-            sda_current = current & SDA_BIT;
-
-            if (sda_current)
-            {
-                /* SDA rising edge while SCL high (0 -> 1): STOP condition */
-                state = ST_IDLE;
-            }
-            else
-            {
-                /* SDA falling edge while SCL high (1 -> 0): START / REPEATED START condition */
-                if (state)
+                else if (state == ST_READ)
                 {
-                    ptr = 0; /* Reset register pointer on fresh START */
+                    if (++len == 8)      /* 8th bit sampled by master */
+                        state = ST_RACK; /* Await master ACK / NAK */
                 }
+                else if (state == ST_WRITE)
+                {
+                    len++;
+                    data <<= 1;
+                    if (sda_current)
+                        data |= 1;
 
-                state = ST_ADDR;
-                len = 0;
-                data = 0;
+                    if (len == 8)
+                    {
+                        /* Data received is the requested register pointer */
+                        if (data < reg_data_length)
+                        {
+                            reg_data = &(reg_data_init[data]);
+                        }
+                        state = ST_ACK;
+                    }
+                }
+                else if (state == ST_RACK)
+                {
+                    if (sda_current) /* NAK: master finished reading */
+                    {
+                        state = ST_IDLE;
+                    }
+                    else /* ACK: master requests sequential byte */
+                    {
+                        if (reg_data == reg_data_end)
+                        {
+                            data = 0xFF;
+                        }
+                        else
+                        {
+                            data = *(reg_data++);
+                        }
+                        len = 0;
+                        state = ST_READ;
+                    }
+                }
+            }
+            else /* SCL falling edge (1 -> 0): drive SDA */
+            {
+                if (state == ST_ACK)
+                {
+                    pause_sda = 1;
+                    SDA_LOW(); /* Drive ACK (pull SDA low) */
+                }
+                else if (state == ST_READ)
+                {
+                    SEND_NEXT_BIT();
+                }
+                else
+                { /* ST_WRITE, ST_RACK */
+                    pause_sda = 0;
+                    SDA_RELEASE();
+                }
+            }
+
+            last = current;
+        }
+        else
+        {
+            if ((tmp & SDA_BIT) /* sda_change */ && (current & SCL_BIT) && !pause_sda)
+            {
+                if (current & SDA_BIT) /* SDA rising edge while SCL high (0 -> 1): STOP condition */
+                {
+                    state = ST_IDLE;
+                }
+                else /* SDA falling edge while SCL high (1 -> 0): START / REPEATED START condition */
+                {
+                    if (state)
+                    {
+                        reg_data = reg_data_init;
+                    }
+
+                    state = ST_ADDR;
+                    len = 0;
+                    data = 0;
+                }
+            }
+
+            last = current;
+        }
+
+        while ((current = PA) == last)
+        {
+            if (++timeout == 0)
+            {
+                state = ST_IDLE;
+                break;
             }
         }
 
-        last = current;
-    }
+        timeout = 0;
+    } while (state != ST_IDLE);
 }
 
 #endif
