@@ -32,33 +32,6 @@ A collection of examples and hardware experiments for ultra-low-cost Padauk 8-bi
    - Select the desired project environment in the PlatformIO project switcher (bottom status bar).
    - Click **Build** (`✓`) or **Upload** (`→`) on the PlatformIO toolbar. PlatformIO will automatically fetch the [`pdk-platformio`](https://github.com/m039/pdk-platformio) platform package on first run.
 
----
-
-## Hardware & Board Connections
-
-Schematics and PCB layouts: [`PCB/Padauk.eprj2`](PCB/Padauk.eprj2) and [`PCB/Images/`](PCB/Images).
-
-### Easy PDK Programmer (`H1 PROG` on `PDK Devboard V1`)
-
-| `H1` Pin | Signal | PMS150C / PMS150G (SOT23-6) | PFS154 (SOP-16) | PFS122 (SOP-16) |
-|:---:|:---|:---:|:---:|:---:|
-| **1** | **VCC / VDD** | Pin 5 | Pin 5 | Pin 1 |
-| **2** | **PA7** | — | Pin 6 | Pin 2 |
-| **3** | **PA6** | Pin 3 | Pin 7 | Pin 3 |
-| **4** | **PA5** | Pin 4 | Pin 8 | Pin 4 |
-| **5** | **PA3** | Pin 6 | Pin 9 | Pin 13 |
-| **6** | **PA4** | Pin 1 | Pin 10 | Pin 14 |
-| **7** | **PA0** | — | Pin 11 | Pin 15 |
-| **8** | **GND** | Pin 2 | Pin 12 | Pin 16 |
-
-### Project Boards (`PCB/`)
-
-- **`PDK Devboard V1`** ([schematic](PCB/Images/SCH_PDK%20Devboard%20V1_1-P1_2025-12-26.png)): `PMS150C` + `PFS154`, `LED2` (`PA4`), `SW2` (`PA3`), `H1` (`PROG`), `H2` (`POWER`).
-- **`PDK Sound Player`** ([schematic](PCB/Images/sound-player-schematic.png)): `PMS150C`, `SW1` (`PA4`), `BUZZER1` (`PA3`).
-- **Adapters** (`PCB/Padauk.eprj2`): `pms150c-u06-adapter`, `pfs154-s16-adapter`, `pfs122-s16-adapter`, `Dip8 Connector`.
-
----
-
 ## References
 
 - [m039.ru/post/pdk-melodies/](https://m039.ru/post/pdk-melodies/) - Article covering the first 5 examples
