@@ -58,4 +58,14 @@ Uncomment and set `ADC_VOLTAGE_THRESHOLD`:
 
 ---
 
+## Wiring
+
+| Signal | PMS150C (SOT23-6) | PFS154 (SOP-16) | Connection |
+|:---|:---:|:---:|:---|
+| **PA4** | Pin 1 | Pin 10 | Status output (`HIGH` if $V_{DD} \ge V_{threshold}$, else `LOW`) |
+| **VDD** | Pin 5 | Pin 5 | Monitored supply (2.0V–5.5V) |
+| **GND** | Pin 2 | Pin 12 | Ground |
+
+---
+
 *Code comments and README.md thoroughly prepared by Gemini (G).*

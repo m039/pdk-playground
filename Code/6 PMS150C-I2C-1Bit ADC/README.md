@@ -26,16 +26,16 @@ $$V_{INT\_R} = \frac{N + 1}{32} \times V_{DD} \quad (N = 0 \dots 15)$$
 
 ## Wiring
 
-| PMS150C | Arduino Nano | Description |
-|:---|:---|:---|
-| **PA0** (Pin 1) | **A5** (SCL) | 4.7 kΩ pull-up to VCC required |
-| **PA5** (Pin 6) | **A4** (SDA) | 4.7 kΩ pull-up to VCC required |
-| **PA4** (Pin 5) | Analog Input | Voltage to measure ($0.03 \dots 0.50 \times V_{DD}$) |
-| **VDD** (Pin 4) | **5V** | Power (2.4V–5.5V) |
-| **GND** (Pin 2) | **GND** | Ground |
+| Signal | PFS154 (SOP-16) | PMS150C (SOP-8) | Arduino Nano | Notes |
+|:---|:---:|:---:|:---|:---|
+| **PA0** (`SCL`) | Pin 11 | Pin 7 | **A5** | 4.7 kΩ pull-up to VCC |
+| **PA5** (`SDA`) | Pin 8 | Pin 4 | **A4** | 4.7 kΩ pull-up to VCC |
+| **PA4** (`CIN+`) | Pin 10 | Pin 6 | Analog Input | Measured voltage ($0.03 \dots 0.50 \times V_{DD}$) |
+| **VDD** | Pin 5 | Pin 1 | **5V** | 2.4V–5.5V |
+| **GND** | Pin 12 | Pin 8 | **GND** | Ground |
 
 *I2C Speed:* **50 kHz** (`Wire.setClock(50000)`).  
-*CPU Clock:* **8 MHz** (microcontroller currently responds reliably at 8 MHz; lower clock speeds do not work).
+*CPU Clock:* **8 MHz** (lower clock speeds do not work).
 
 ## I2C Registers (Address `0x2A`)
 

@@ -2,9 +2,10 @@
   TwoWireTest - Arduino Nano Master for PMS150C I2C 1-Bit ADC Slave.
 
   Hardware Connections:
-    - Nano A4 (SDA) <-> PMS150C PA5 (pin 6)
-    - Nano A5 (SCL) <-> PMS150C PA0 (pin 1)
-    - Common GND
+    - Nano A4 (SDA) <-> PA5 (PFS154 SOP-16 Pin 8 / PMS150C SOP-8 Pin 4)
+    - Nano A5 (SCL) <-> PA0 (PFS154 SOP-16 Pin 11 / PMS150C SOP-8 Pin 7)
+    - Common GND    <-> GND (PFS154 SOP-16 Pin 12 / PMS150C SOP-8 Pin 8)
+    - 5V / 3.3V     <-> VDD (PFS154 SOP-16 Pin 5 / PMS150C SOP-8 Pin 1)
     - Pull-up resistors: 4.7 kOhm on SDA and SCL to bus VCC (e.g. 3.3V / 5V)
 
   I2C Specifications:

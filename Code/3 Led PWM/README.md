@@ -12,11 +12,11 @@ Smoothly fades an LED in and out by varying the duty cycle of hardware Timer 2 (
 
 ## Wiring
 
-| Pin | Function | Connection |
-|:---|:---|:---|
-| **PA3** (TM2PWM) | PWM Output | Connect to LED via 330 Ω / 1 kΩ current-limiting resistor |
-| **VDD** | Power | 2.0V–5.5V DC supply |
-| **GND** | Ground | Common Ground |
+| Signal | PFS154 (SOP-16) | PMS150C / PMS150G (SOT23-6) | Connection |
+|:---|:---:|:---:|:---|
+| **PA3** (`TM2PWM`) | Pin 9 | Pin 6 | LED with resistor (to VDD, active-low) |
+| **VDD** | Pin 5 | Pin 5 | 2.0V–5.5V |
+| **GND** | Pin 12 | Pin 2 | Ground |
 
 ## Usage
 

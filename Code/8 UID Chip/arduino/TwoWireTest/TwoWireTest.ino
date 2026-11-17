@@ -5,11 +5,11 @@
   The PMS150C emulates an I2C slave (7-bit address 0x2B) and responds with a 6-byte
   Unique ID (UID) from Register 0x00.
 
-  Wiring (Arduino Nano <-> PMS150C):
-    - A5 (SCL)  <->  Pin 1 (PA0)  [4.7 kΩ pull-up to 5V required]
-    - A4 (SDA)  <->  Pin 6 (PA5)  [4.7 kΩ pull-up to 5V required]
-    - 5V        <->  Pin 4 (VDD)  [2.4V – 5.5V supply]
-    - GND       <->  Pin 2 (GND)  [common ground]
+  Wiring (Arduino Nano <-> PMS150C SOT23-6 / PFS154 SOP-16):
+    - A5 (SCL)  <->  PA6 (PMS150C Pin 3 / PFS154 Pin 7)  [4.7 kΩ pull-up to 5V required]
+    - A4 (SDA)  <->  PA3 (PMS150C Pin 6 / PFS154 Pin 9)  [4.7 kΩ pull-up to 5V required]
+    - 5V        <->  VDD (PMS150C Pin 5 / PFS154 Pin 5)  [2.4V – 5.5V supply]
+    - GND       <->  GND (PMS150C Pin 2 / PFS154 Pin 12) [common ground]
 
   Deep Sleep & Wake-Up Protocol:
     The PMS150C enters ultra-low-power deep sleep ('stopsys', < 0.5 µA) after 65536 idle cycles.

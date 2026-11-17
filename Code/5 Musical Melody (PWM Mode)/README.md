@@ -12,12 +12,13 @@ Plays melodies ("Twinkle, Twinkle, Little Star") on a passive piezo buzzer using
 
 ## Wiring
 
-| Pin | Function | Connection |
-|:---|:---|:---|
-| **PA3** (TM2PWM) | Buzzer Output | Passive Piezo Buzzer (+) pin; (-) pin to GND |
-| **PB3** (AD3) | ADC Input | Potentiometer wiper (0V .. VDD) |
-| **VDD** | Power | 3.3V–5.0V DC supply |
-| **GND** | Ground | Common Ground |
+| Signal | PFS122 (SOP-16) | Connection |
+|:---|:---:|:---|
+| **PA3** (`TM2PWM`) | Pin 13 | Piezo buzzer (+) |
+| **PB3** (`AD3`) | Pin 12 | Potentiometer wiper |
+| **PA7** *(optional)* | Pin 2 | UART TX (`CONFIG_DEBUG=1`) |
+| **VDD** | Pin 1 | 3.3V–5.0V |
+| **GND** | Pin 16 | Ground |
 
 ## Usage
 

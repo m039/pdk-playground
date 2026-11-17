@@ -12,11 +12,11 @@ Demonstrates LED blinking on pin PA4 written directly in pure **Padauk Assembly*
 
 ## Wiring
 
-| Pin | Function | Connection |
-|:---|:---|:---|
-| **PA4** | LED | Connect to LED through a current-limiting resistor |
-| **VDD** | Power | 2.0V–5.5V DC supply |
-| **GND** | Ground | Common Ground |
+| Signal | PFS154 (SOP-16) | PMS150C (SOT23-6) | Connection |
+|:---|:---:|:---:|:---|
+| **PA4** | Pin 10 | Pin 1 | LED with resistor |
+| **VDD** | Pin 5 | Pin 5 | 2.0V–5.5V |
+| **GND** | Pin 12 | Pin 2 | Ground |
 
 ## Usage
 

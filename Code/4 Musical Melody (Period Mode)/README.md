@@ -12,12 +12,12 @@ Plays musical melodies (such as "Komarovo") on a passive piezo buzzer using hard
 
 ## Wiring
 
-| Pin | Function | Connection |
-|:---|:---|:---|
-| **PA3** (TM2PWM) | Buzzer Output | Passive Piezo Buzzer (+) pin; (-) pin to GND |
-| **PA4** | Pushbutton | Pushbutton connected to GND (uses internal pull-up) |
-| **VDD** | Power | 2.0V–5.5V DC supply |
-| **GND** | Ground | Common Ground |
+| Signal | PFS154 (SOP-16) | PMS150C / PMS150G (SOT23-6) | PFS122 (SOP-16) | Connection |
+|:---|:---:|:---:|:---:|:---|
+| **PA3** (`TM2PWM`) | Pin 9 | Pin 6 | Pin 13 | Piezo buzzer (+) |
+| **PA4** | Pin 10 | Pin 1 | Pin 14 | Pushbutton to GND |
+| **VDD** | Pin 5 | Pin 5 | Pin 1 | 2.0V–5.5V |
+| **GND** | Pin 12 | Pin 2 | Pin 16 | Ground |
 
 ## Usage
 

@@ -18,20 +18,18 @@ The microcontroller operates at **8 MHz** internal high-speed oscillator (IHRC) 
 | **Deep Sleep Mode (`stopsys`)** | All clocks stopped (IHRC off) | **~0.5 – 1.0 µA** | **< 0.5 µA** | Entered after 65536 idle passes; clock switched to ILRC and IHRC disabled |
 
 > **Bus Traffic & Power Note:**
-> Because the microcontroller wakes up on any signal toggle on SCL (`PA0`) or SDA (`PA5`) via `PADIER` pin-change detection, any communication on a shared I2C bus—even if addressed to other devices—will repeatedly wake the chip or reset its idle timeout. As long as there is active traffic on the I2C bus, the MCU will remain awake and consume full active power (**~2.0 – 2.5 mA** at 5.0V / **~1.2 – 1.5 mA** at 3.3V).
+> Because the microcontroller wakes up on any signal toggle on SCL (`PA6`) or SDA (`PA3`) via `PADIER` pin-change detection, any communication on a shared I2C bus—even if addressed to other devices—will repeatedly wake the chip or reset its idle timeout. As long as there is active traffic on the I2C bus, the MCU will remain awake and consume full active power (**~2.0 – 2.5 mA** at 5.0V / **~1.2 – 1.5 mA** at 3.3V).
 
 ---
 
-## Wiring (PMS150C to Arduino Nano)
+## Wiring (PMS150C / PFS154 to Arduino Nano)
 
-Both I2C lines are open-drain and require external 4.7 kΩ pull-up resistors to VCC.
-
-| PMS150C | Arduino Nano | Description | Notes |
-|:---|:---|:---|:---|
-| **Pin 3 (PA6)** | **A5** (SCL) | I2C Clock line | 4.7 kΩ pull-up to 5V required |
-| **Pin 6 (PA3)** | **A4** (SDA) | I2C Data line | 4.7 kΩ pull-up to 5V required |
-| **Pin 4 (VDD)** | **5V** (or 3V3) | Power supply | 2.4V – 5.5V DC |
-| **Pin 2 (GND)** | **GND** | Ground | Common ground |
+| Signal | PMS150C (SOT23-6) | PMS150C (SOP-8) | PFS154 (SOP-16) | Arduino Nano | Notes |
+|:---|:---:|:---:|:---:|:---|:---|
+| **PA6** (`SCL`) | Pin 3 | Pin 3 | Pin 7 | **A5** | 4.7 kΩ pull-up to VCC |
+| **PA3** (`SDA`) | Pin 6 | Pin 5 | Pin 9 | **A4** | 4.7 kΩ pull-up to VCC |
+| **VDD** | Pin 5 | Pin 1 | Pin 5 | **5V** (or 3V3) | 2.4V–5.5V |
+| **GND** | Pin 2 | Pin 8 | Pin 12 | **GND** | Ground |
 
 ---
 
