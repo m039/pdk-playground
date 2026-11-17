@@ -26,13 +26,13 @@ $$V_{INT\_R} = \frac{N + 1}{32} \times V_{DD} \quad (N = 0 \dots 15)$$
 
 ## Wiring (PMS150C / PFS154 to Arduino Nano)
 
-| Signal | PMS150C-U06 (SOT23-6) | PMS150C (SOP-8) | PFS154 (SOP-16) | Arduino Nano | Notes |
-|:---|:---:|:---:|:---:|:---|:---|
-| **PA6** (`SCL`) | Pin 3 | Pin 3 | Pin 7 | **A5** | 4.7 kΩ pull-up to VCC |
-| **PA3** (`SDA`) | Pin 6 | Pin 5 | Pin 9 | **A4** | 4.7 kΩ pull-up to VCC |
-| **PA4** (`CIN+`) | Pin 1 | Pin 6 | Pin 10 | Analog Input | Measured voltage ($0.03 \dots 0.50 \times V_{DD}$) |
-| **VDD** | Pin 5 | Pin 1 | Pin 5 | **5V** (or 3V3) | 2.4V–5.5V |
-| **GND** | Pin 2 | Pin 8 | Pin 12 | **GND** | Ground |
+| Signal | PMS150C-U06 (SOT23-6) | PFS154 (SOP-16) | Arduino Nano | Notes |
+|:---|:---:|:---:|:---|:---|
+| **PA6** (`SCL`) | Pin 3 | Pin 7 | **A5** | 4.7 kΩ pull-up to VCC |
+| **PA3** (`SDA`) | Pin 6 | Pin 9 | **A4** | 4.7 kΩ pull-up to VCC |
+| **PA4** (`CIN+`) | Pin 1 | Pin 10 | Analog Input | Measured voltage ($0.03 \dots 0.50 \times V_{DD}$) |
+| **VDD** | Pin 5 | Pin 5 | **5V** (or 3V3) | 2.4V–5.5V |
+| **GND** | Pin 2 | Pin 12 | **GND** | Ground |
 
 *I2C Speed:* **50 kHz** (`Wire.setClock(50000)`).  
 *CPU Clock:* **8 MHz** (lower clock speeds do not work).
