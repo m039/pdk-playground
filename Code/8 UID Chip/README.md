@@ -28,8 +28,8 @@ Both I2C lines are open-drain and require external 4.7 kΩ pull-up resistors to 
 
 | PMS150C | Arduino Nano | Description | Notes |
 |:---|:---|:---|:---|
-| **Pin 1 (PA0)** | **A5** (SCL) | I2C Clock line | 4.7 kΩ pull-up to 5V required |
-| **Pin 6 (PA5)** | **A4** (SDA) | I2C Data line | 4.7 kΩ pull-up to 5V required |
+| **Pin 3 (PA6)** | **A5** (SCL) | I2C Clock line | 4.7 kΩ pull-up to 5V required |
+| **Pin 6 (PA3)** | **A4** (SDA) | I2C Data line | 4.7 kΩ pull-up to 5V required |
 | **Pin 4 (VDD)** | **5V** (or 3V3) | Power supply | 2.4V – 5.5V DC |
 | **Pin 2 (GND)** | **GND** | Ground | Common ground |
 

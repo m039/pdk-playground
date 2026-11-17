@@ -5,8 +5,8 @@
 #include <stdint.h>
 
 #define I2C_ADDR 0x2B
-#define PIN_SCL 0
-#define PIN_SDA 5
+#define PIN_SCL 6
+#define PIN_SDA 3
 #define SCL_BIT ((uint8_t)(1 << PIN_SCL))
 #define SDA_BIT ((uint8_t)(1 << PIN_SDA))
 
@@ -77,7 +77,7 @@ inline void i2c_init(uint8_t *data, uint8_t length)
     PA &= (uint8_t)~(SDA_BIT | SCL_BIT);  /* Output latches set to 0 permanently */
     PAC &= (uint8_t)~(SDA_BIT | SCL_BIT); /* Both lines released (input mode) */
 
-    /* Wake-up from stopsys enabled ONLY for SCL (PA0) and SDA (PA5):
+    /* Wake-up from stopsys enabled ONLY for SCL and SDA:
        any toggle on these pins wakes the CPU. All other pins must not. */
     PADIER = SCL_BIT | SDA_BIT;
     PBDIER = 0x00; /* Port B must not wake the MCU */
