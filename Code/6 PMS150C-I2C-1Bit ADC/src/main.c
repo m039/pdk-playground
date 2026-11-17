@@ -8,8 +8,8 @@
     - Reg 2..7: 6-byte Unique ID (defined at compile time)
 
   Pins:
-    PA0 = SCL (input, driven by master clock)
-    PA5 = SDA (open-drain, bidirectionally driven with output latch fixed at 0)
+    PA6 = SCL (input, driven by master clock)
+    PA3 = SDA (open-drain, bidirectionally driven with output latch fixed at 0)
     PA4 = Analog comparator input for VPA4 measurement
 
   Pull-ups: External 4.7k resistors to bus VDD (internal weak PAPH pull-ups as backup).
@@ -21,8 +21,8 @@
 #include "adc.h"
 
 #define I2C_ADDR 0x2A
-#define PIN_SCL 0
-#define PIN_SDA 5
+#define PIN_SCL 6
+#define PIN_SDA 3
 #define SCL_BIT ((uint8_t)(1 << PIN_SCL))
 #define SDA_BIT ((uint8_t)(1 << PIN_SDA))
 
@@ -87,7 +87,7 @@ void main(void)
     PAC &= (uint8_t)~(SDA_BIT | SCL_BIT); /* Both lines released (input mode) */
 
     /* PADIER is write-only: configure digital input buffers.
-       PA0 (SCL) and PA5 (SDA) are enabled as digital inputs.
+       PA6 (SCL) and PA3 (SDA) are enabled as digital inputs.
        PA4 digital buffer is disabled to prevent leakage into analog comparator. */
     PADIER = SCL_BIT | SDA_BIT;
 
