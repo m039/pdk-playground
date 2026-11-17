@@ -24,12 +24,12 @@ The microcontroller operates at **8 MHz** internal high-speed oscillator (IHRC) 
 
 ## Wiring (PMS150C / PFS154 to Arduino Nano)
 
-| Signal | PMS150C (SOT23-6) | PMS150C (SOP-8) | PFS154 (SOP-16) | Arduino Nano | Notes |
-|:---|:---:|:---:|:---:|:---|:---|
-| **PA6** (`SCL`) | Pin 3 | Pin 3 | Pin 7 | **A5** | 4.7 kΩ pull-up to VCC |
-| **PA3** (`SDA`) | Pin 6 | Pin 5 | Pin 9 | **A4** | 4.7 kΩ pull-up to VCC |
-| **VDD** | Pin 5 | Pin 1 | Pin 5 | **5V** (or 3V3) | 2.4V–5.5V |
-| **GND** | Pin 2 | Pin 8 | Pin 12 | **GND** | Ground |
+| Signal | PMS150C (SOT23-6) | PFS154 (SOP-16) | Arduino Nano | Notes |
+|:---|:---:|:---:|:---|:---|
+| **PA6** (`SCL`) | Pin 3 | Pin 7 | **A5** | 4.7 kΩ pull-up to VCC |
+| **PA3** (`SDA`) | Pin 6 | Pin 9 | **A4** | 4.7 kΩ pull-up to VCC |
+| **VDD** | Pin 5 | Pin 5 | **5V** (or 3V3) | 2.4V–5.5V |
+| **GND** | Pin 2 | Pin 12 | **GND** | Ground |
 
 ---
 
